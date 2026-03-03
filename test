@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Clicker | My Fun Site</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        #balance { font-size: 3rem; font-weight: bold; margin-bottom: 20px; color: #2ecc71; }
+        button { padding: 20px 40px; font-size: 1.5rem; cursor: pointer; border: none; border-radius: 50px; background: #3498db; color: white; transition: transform 0.1s; box-shadow: 0 5px #2980b9; }
+        button:active { transform: translateY(4px); box-shadow: 0 1px #2980b9; }
+    </style>
+</head>
+<body>
+    <div id="balance">$0</div>
+    <button onclick="addMoney()">Click for $1,000,000</button>
+
+    <script>
+        let total = 0;
+        function addMoney() {
+            total += 1000000;
+            document.getElementById('balance').innerText = "$" + total.toLocaleString();
+        }
+    </script>
+</body>
+</html>
