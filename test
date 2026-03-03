@@ -1,26 +1,51 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Money Clicker | My Fun Site</title>
+    <title>The Wealth Experiment</title>
     <style>
-        body { font-family: 'Arial', sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        #balance { font-size: 3rem; font-weight: bold; margin-bottom: 20px; color: #2ecc71; }
-        button { padding: 20px 40px; font-size: 1.5rem; cursor: pointer; border: none; border-radius: 50px; background: #3498db; color: white; transition: transform 0.1s; box-shadow: 0 5px #2980b9; }
-        button:active { transform: translateY(4px); box-shadow: 0 1px #2980b9; }
+        :root { --primary: #2ecc71; --bg: #ffffff; }
+        body { font-family: sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; transition: 0.3s; }
+        #money-display { font-size: 4rem; font-weight: 800; color: var(--primary); margin-bottom: 20px; }
+        .main-button { 
+            padding: 25px 50px; font-size: 1.5rem; font-weight: bold; cursor: pointer; 
+            border: none; border-radius: 15px; background: var(--primary); color: white;
+            box-shadow: 0 8px #27ae60; transition: 0.1s; 
+        }
+        .main-button:active { transform: translateY(4px); box-shadow: 0 4px #27ae60; }
+        .stats { margin-top: 20px; color: #7f8c8d; font-size: 1.2rem; }
     </style>
 </head>
 <body>
-    <div id="balance">$0</div>
-    <button onclick="addMoney()">Click for $1,000,000</button>
+
+    <div id="money-display">$0</div>
+    <button class="main-button" onclick="handleButtonClick()">GET $1,000,000</button>
+    <div class="stats">Clicks: <span id="click-count">0</span></div>
 
     <script>
-        let total = 0;
-        function addMoney() {
-            total += 1000000;
-            document.getElementById('balance').innerText = "$" + total.toLocaleString();
+        // Use localStorage so your progress is saved!
+        let money = parseInt(localStorage.getItem('money')) || 0;
+        let clicks = parseInt(localStorage.getItem('clicks')) || 0;
+
+        // Function to update the screen
+        function updateUI() {
+            document.getElementById('money-display').innerText = "$" + money.toLocaleString();
+            document.getElementById('click-count').innerText = clicks;
         }
+
+        function handleButtonClick() {
+            money += 1000000;
+            clicks += 1;
+            
+            // Save to browser memory
+            localStorage.setItem('money', money);
+            localStorage.setItem('clicks', clicks);
+            
+            updateUI();
+        }
+
+        // Run this when the page loads
+        updateUI();
     </script>
 </body>
 </html>
