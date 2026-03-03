@@ -1,156 +1,145 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spend Millions | Olientering</title>
+    <title>Ölientering | Matematik-utmaningen</title>
     <style>
         :root {
-            --green: #2ecc71;
-            --red: #eb4d4b;
-            --bg: #f6f8f9;
+            --bg: #ffffff;
+            --text: #1a1a1a;
+            --accent: #000000;
         }
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Helvetica', 'Arial', sans-serif;
             background-color: var(--bg);
+            color: var(--text);
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
+            padding: 20px;
         }
-        #money-bar {
-            position: sticky;
-            top: 0;
-            background: var(--green);
-            color: white;
-            width: 100%;
-            padding: 20px 0;
-            text-align: center;
-            font-size: clamp(1.5rem, 5vw, 2.5rem);
-            font-weight: 800;
-            z-index: 100;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .container {
-            max-width: 800px;
-            width: 90%;
-            padding: 40px 0;
-            text-align: center;
-        }
-        .clicker-section {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        .main-btn {
-            background: var(--green);
-            color: white;
-            border: none;
-            padding: 20px 40px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-        .main-btn:active { transform: scale(0.95); }
-
-        .shop-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
+        header {
+            font-size: 2.5rem;
+            font-weight: 400;
+            letter-spacing: -1px;
+            margin-bottom: 50px;
             margin-top: 20px;
         }
-        .item-card {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            border: 1px solid #eee;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        .step {
+            display: none;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
         }
-        .item-name { font-weight: bold; font-size: 1.2rem; }
-        .item-cost { color: #666; }
-        .buy-btn {
-            background: #eee;
+        .step.active { display: block; }
+
+        h2 { font-size: 1.5rem; margin-bottom: 20px; }
+        
+        input {
+            padding: 15px;
+            font-size: 1.2rem;
+            width: 80%;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            outline: none;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 15px 30px;
+            background: var(--accent);
+            color: white;
             border: none;
-            padding: 10px;
-            font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
+            font-size: 1rem;
         }
-        .buy-btn.affordable {
-            background: var(--green);
-            color: white;
+
+        .sortable-item {
+            background: #f0f0f0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            cursor: grab;
+            border: 1px solid #ddd;
         }
-        .buy-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        #final-screen { font-size: 5rem; font-weight: bold; color: var(--accent); }
     </style>
 </head>
 <body>
 
-    <div id="money-bar">$0</div>
+    <header>ölientering</header>
 
-    <div class="container">
-        <div class="clicker-section">
-            <button class="main-btn" onclick="earn(1000000)">Get $1,000,000</button>
-            <p>Click to start your empire</p>
-        </div>
+    <div id="step-1" class="step active">
+        <h2>Vad är derivatan av f(x) = 15x² + 10x när x = 3?</h2>
+        <input type="number" id="ans-1" placeholder="Svara här...">
+        <br>
+        <button onclick="checkStep1()">Fortsätt</button>
+    </div>
 
-        <div class="shop-grid" id="shop">
-            </div>
+    <div id="step-2" class="step">
+        <h2>Sortera från minst till störst:</h2>
+        <p>(Dra inte, skriv bara svaret på nästa fråga)</p>
+        <div class="sortable-item">A: 15 * 10</div>
+        <div class="sortable-item">B: 2^7</div>
+        <div class="sortable-item">C: √10000</div>
+        <input type="text" id="ans-2" placeholder="Skriv ordningen (t.ex. CBA)">
+        <br>
+        <button onclick="checkStep2()">Kontrollera</button>
+    </div>
+
+    <div id="step-3" class="step">
+        <h2>Slutgiltiga frågan: Vad är 400 * 2?</h2>
+        <input type="number" id="ans-3" placeholder="Svara här...">
+        <br>
+        <button onclick="checkStep3()">Slutför</button>
+    </div>
+
+    <div id="step-final" class="step">
+        <h2>Resultat:</h2>
+        <div id="final-screen">800</div>
+        <p>Du klarade Ölientering-testet.</p>
     </div>
 
     <script>
-        let balance = parseInt(localStorage.getItem('olientering_bal')) || 0;
-
-        const items = [
-            { name: "Superyacht", cost: 50000000, emoji: "🛥️" },
-            { name: "Private Jet", cost: 120000000, emoji: "🛩️" },
-            { name: "Skyscraper", cost: 850000000, emoji: "🏙️" },
-            { name: "Small Country", cost: 5000000000, emoji: "🏝️" }
-        ];
-
-        function earn(amount) {
-            balance += amount;
-            update();
+        function showStep(stepNum) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step-' + stepNum).classList.add('active');
         }
 
-        function buy(index) {
-            if (balance >= items[index].cost) {
-                balance -= items[index].cost;
-                update();
+        function checkStep1() {
+            // Derivatan är 30x + 10. Vid x=3: 30(3) + 10 = 100
+            if (document.getElementById('ans-1').value == "100") {
+                showStep(2);
+            } else {
+                alert("Fel svar, försök igen!");
             }
         }
 
-        function update() {
-            // Update UI
-            document.getElementById('money-bar').innerText = "$" + balance.toLocaleString();
-            localStorage.setItem('olientering_bal', balance);
-            renderShop();
+        function checkStep2() {
+            // A=150, B=128, C=100. Ordning: CBA
+            if (document.getElementById('ans-2').value.toUpperCase() == "CBA") {
+                showStep(3);
+            } else {
+                alert("Fel ordning!");
+            }
         }
 
-        function renderShop() {
-            const shop = document.getElementById('shop');
-            shop.innerHTML = items.map((item, index) => `
-                <div class="item-card">
-                    <div style="font-size: 3rem">${item.emoji}</div>
-                    <div class="item-name">${item.name}</div>
-                    <div class="item-cost">$${item.cost.toLocaleString()}</div>
-                    <button 
-                        class="buy-btn ${balance >= item.cost ? 'affordable' : ''}" 
-                        onclick="buy(${index})"
-                        ${balance < item.cost ? 'disabled' : ''}>
-                        Buy
-                    </button>
-                </div>
-            `).join('');
+        function checkStep3() {
+            if (document.getElementById('ans-3').value == "800") {
+                showStep('final');
+            } else {
+                alert("Nära nu! Vad blir 400 * 2?");
+            }
         }
-
-        // Initial launch
-        update();
     </script>
+
 </body>
 </html>
