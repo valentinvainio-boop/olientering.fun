@@ -3,65 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ölientering</title>
+    <title>Ölientering.fun</title>
     <style>
-        body { font-family: Helvetica, Arial, sans-serif; text-align: center; padding: 50px; background: #fff; color: #000; }
-        header { font-size: 3rem; margin-bottom: 40px; }
-        .step { display: none; }
-        .active { display: block; }
-        input { padding: 10px; font-size: 1.2rem; border: 1px solid #ccc; border-radius: 5px; margin: 10px; }
-        button { padding: 10px 20px; font-size: 1.1rem; cursor: pointer; background: #000; color: #fff; border: none; border-radius: 5px; }
-        .sort-box { background: #f4f4f4; padding: 10px; margin: 5px auto; width: 200px; border: 1px solid #ddd; }
+        body { 
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: #f9f9f9; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            overflow-x: hidden;
+        }
+        header { 
+            font-size: 3.5rem; 
+            font-weight: 300; 
+            margin-bottom: 50px; 
+            letter-spacing: -2px; 
+            color: #1a1a1a;
+        }
+
+        /* "Är du full?" - Captcha Style Box */
+        #start-container {
+            background: white; 
+            border: 1px solid #d3d3d3; 
+            border-radius: 3px;
+            width: 320px; 
+            padding: 20px; 
+            display: flex; 
+            align-items: center;
+            gap: 15px; 
+            cursor: pointer; 
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            user-select: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .checkbox { 
+            width: 28px; 
+            height: 28px; 
+            border: 2px solid #c1c1c1; 
+            border-radius: 2px; 
+            background: #fff;
+        }
+        #start-container.clicked .checkbox::after { 
+            content: "✓"; 
+            color: #4a90e2; 
+            display: block; 
+            font-size: 24px; 
+            font-weight: bold; 
+            text-align: center; 
+            line-height: 28px;
+        }
+
+        /* Matte-grid styling */
+        .captcha-box { 
+            background: white; 
+            border: 1px solid #d3d3d3; 
+            width: 400px; 
+            padding: 20px; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.1); 
+        }
+        .captcha-header { 
+            background: #4a90e2; 
+            color: white; 
+            padding: 20px; 
+            margin: -20px -20px 20px -20px; 
+            font-size: 0.95rem; 
+            line-height: 1.4;
+        }
+        .captcha-header b { font-size: 1.1rem; display: block; margin-top: 5px; }
+
+        .grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+        }
+        .math-card { 
+            background: #f1f1f1; 
+            padding: 20px; 
+            cursor: pointer; 
+            text-align: center; 
+            border-radius: 2px; 
+            min-height: 85px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 0.95rem; 
+            border: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .math-card:hover { background: #e8e8e8; }
+        .math-card.selected { 
+            border-color: #4a90e2; 
+            background: #e3f2fd; 
+        }
+
+        .hidden { display: none; }
+        #final-screen { font-size: 7rem; font-weight: bold; margin-bottom: 0; color: #000; }
+        .success-text { font-size: 1.8rem; color: #2ecc71; font-weight: bold; margin-top: -10px; }
+        
+        .fall-off { 
+            transform: translateY(1500px) rotate(135deg) !important; 
+            transition: 1.5s ease-in !important; 
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
-    <header>ölientering</header>
+    <header>Ölientering.fun</header>
 
-    <div id="q1" class="step active">
-        <p>Vad är derivatan av f(x) = 15x² + 10x när x = 3?</p>
-        <input type="number" id="a1">
-        <button onclick="check1()">Nästa</button>
+    <div id="start-container" onclick="handleStartClick()">
+        <div class="checkbox"></div>
+        <span style="font-size: 1.2rem; color: #555; font-weight: 500;">Är du full?</span>
+        <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width:32px; margin-left:auto;" alt="reCAPTCHA">
     </div>
 
-    <div id="q2" class="step">
-        <p>Sortera dessa från MINST till STÖRST (Svara med bokstäverna, t.ex. ABC):</p>
-        <div class="sort-box">A: 150</div>
-        <div class="sort-box">B: 128</div>
-        <div class="sort-box">C: 100</div>
-        <input type="text" id="a2">
-        <button onclick="check2()">Nästa</button>
+    <div id="game-container" class="captcha-box hidden">
+        <div class="captcha-header">
+            <span>Verifiera din nykterhet genom att välja rutorna i ordning från</span>
+            <b>MINSTA TILL STÖRSTA VÄRDE</b>
+        </div>
+        <div class="grid" id="math-grid"></div>
+        <div id="status" style="margin-top:20px; font-size:0.8rem; color:#888; text-align: center; border-top: 1px solid #eee; padding-top: 10px;">
+            Verifiering krävs för åtkomst.
+        </div>
     </div>
 
-    <div id="q3" class="step">
-        <p>Sista frågan: Vad är 400 * 2?</p>
-        <input type="number" id="a3">
-        <button onclick="check3()">Slutför</button>
-    </div>
-
-    <div id="success" class="step">
-        <h1 style="font-size: 5rem;">800</h1>
-        <p>Du är mänsklig.</p>
+    <div id="success" class="hidden" style="text-align:center;">
+        <div id="final-screen">800</div>
+        <div class="success-text">Du är inte full! Bra jobbat.</div>
     </div>
 
     <script>
-        function check1() {
-            if(document.getElementById('a1').value == "100") {
-                document.getElementById('q1').classList.remove('active');
-                document.getElementById('q2').classList.add('active');
-            } else { alert("Fel! Prova igen."); }
+        let clickCount = 0;
+        let rotation = 0;
+
+        function handleStartClick() {
+            clickCount++;
+            rotation += (clickCount * 14);
+            const box = document.getElementById('start-container');
+            box.style.transform = `rotate(${rotation}deg)`;
+            
+            if (clickCount >= 6) {
+                box.classList.add('fall-off');
+                setTimeout(() => {
+                    box.classList.add('hidden');
+                    document.getElementById('game-container').classList.remove('hidden');
+                    renderGrid();
+                }, 1100);
+            }
         }
-        function check2() {
-            if(document.getElementById('a2').value.toUpperCase() == "CBA") {
-                document.getElementById('q2').classList.remove('active');
-                document.getElementById('q3').classList.add('active');
-            } else { alert("Fel ordning!"); }
+
+        // Svåra matematiska operationer (värden inom parentes):
+        // 1. f(x) = ln(x²), f'(e) ≈ 0.736
+        // 2. d/dx (sin x · eˣ) vid x = 0 = 1
+        // 3. lim x→∞ (10x² + 5)/(2x² - 1) = 5
+        // 4. ∫₀¹ (12x² + 4x) dx = 6
+        const problems = [
+            { text: "f(x) = ln(x²)<br>Bestäm f'(e)", val: 0.736 },
+            { text: "d/dx (sin x · eˣ)<br>vid x = 0", val: 1 },
+            { text: "lim x→∞<br>(10x² + 5)/(2x² - 1)", val: 5 },
+            { text: "∫₀¹ (12x² + 4x) dx", val: 6 }
+        ];
+
+        // Rätt ordning baserat på värde: 0.736 < 1 < 5 < 6
+        const correctOrder = [0, 1, 2, 3]; 
+        let userOrder = [];
+
+        function renderGrid() {
+            const grid = document.getElementById('math-grid');
+            // Blanda ordningen på rutorna
+            const shuffled = [...problems].sort(() => Math.random() - 0.5);
+            
+            shuffled.forEach((p) => {
+                const originalIndex = problems.indexOf(p);
+                const div = document.createElement('div');
+                div.className = 'math-card';
+                div.innerHTML = p.text;
+                div.onclick = () => {
+                    if (userOrder.includes(originalIndex)) return;
+                    userOrder.push(originalIndex);
+                    div.classList.add('selected');
+                    
+                    if (userOrder.length === problems.length) {
+                        checkLogic();
+                    }
+                };
+                grid.appendChild(div);
+            });
         }
-        function check3() {
-            if(document.getElementById('a3').value == "800") {
-                document.getElementById('q3').classList.remove('active');
-                document.getElementById('success').classList.add('active');
-            } else { alert("Inte riktigt..."); }
+
+        function checkLogic() {
+            const isCorrect = userOrder.every((val, i) => val === correctOrder[i]);
+            if (isCorrect) {
+                document.getElementById('game-container').classList.add('hidden');
+                document.getElementById('success').classList.remove('hidden');
+            } else {
+                alert("Matematiken ljuger inte. Du är definitivt för full. Försök igen!");
+                location.reload();
+            }
         }
     </script>
 </body>
