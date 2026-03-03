@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ölientering</title>
+    <style>
+        body { font-family: Helvetica, Arial, sans-serif; text-align: center; padding: 50px; background: #fff; color: #000; }
+        header { font-size: 3rem; margin-bottom: 40px; }
+        .step { display: none; }
+        .active { display: block; }
+        input { padding: 10px; font-size: 1.2rem; border: 1px solid #ccc; border-radius: 5px; margin: 10px; }
+        button { padding: 10px 20px; font-size: 1.1rem; cursor: pointer; background: #000; color: #fff; border: none; border-radius: 5px; }
+        .sort-box { background: #f4f4f4; padding: 10px; margin: 5px auto; width: 200px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+
+    <header>ölientering</header>
+
+    <div id="q1" class="step active">
+        <p>Vad är derivatan av f(x) = 15x² + 10x när x = 3?</p>
+        <input type="number" id="a1">
+        <button onclick="check1()">Nästa</button>
+    </div>
+
+    <div id="q2" class="step">
+        <p>Sortera dessa från MINST till STÖRST (Svara med bokstäverna, t.ex. ABC):</p>
+        <div class="sort-box">A: 150</div>
+        <div class="sort-box">B: 128</div>
+        <div class="sort-box">C: 100</div>
+        <input type="text" id="a2">
+        <button onclick="check2()">Nästa</button>
+    </div>
+
+    <div id="q3" class="step">
+        <p>Sista frågan: Vad är 400 * 2?</p>
+        <input type="number" id="a3">
+        <button onclick="check3()">Slutför</button>
+    </div>
+
+    <div id="success" class="step">
+        <h1 style="font-size: 5rem;">800</h1>
+        <p>Du är mänsklig.</p>
+    </div>
+
+    <script>
+        function check1() {
+            if(document.getElementById('a1').value == "100") {
+                document.getElementById('q1').classList.remove('active');
+                document.getElementById('q2').classList.add('active');
+            } else { alert("Fel! Prova igen."); }
+        }
+        function check2() {
+            if(document.getElementById('a2').value.toUpperCase() == "CBA") {
+                document.getElementById('q2').classList.remove('active');
+                document.getElementById('q3').classList.add('active');
+            } else { alert("Fel ordning!"); }
+        }
+        function check3() {
+            if(document.getElementById('a3').value == "800") {
+                document.getElementById('q3').classList.remove('active');
+                document.getElementById('success').classList.add('active');
+            } else { alert("Inte riktigt..."); }
+        }
+    </script>
+</body>
+</html>
