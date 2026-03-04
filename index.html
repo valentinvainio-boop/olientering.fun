@@ -9,22 +9,30 @@
             font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background: #f4f4f4; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; margin: 0; 
+            min-height: 100vh; margin: 0; overflow-x: hidden;
         }
         header { font-size: 3.5rem; font-weight: 300; margin-bottom: 30px; letter-spacing: -2px; color: #1a1a1a; }
 
-        .captcha-container { background: white; border: 1px solid #ccc; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
-        .captcha-header { background: #4a90e2; color: white; padding: 20px; }
-        .captcha-header b { display: block; font-size: 1.1rem; margin-top: 5px; }
-
-        /* Steg 0: Startknapp */
+        /* Steg 0: Startknapp med animation */
         #start-container {
             background: white; border: 1px solid #d3d3d3; border-radius: 3px;
             width: 320px; padding: 20px; display: flex; align-items: center;
             gap: 15px; cursor: pointer; user-select: none;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .checkbox { width: 28px; height: 28px; border: 2px solid #c1c1c1; border-radius: 2px; }
+        
+        .fall-off { 
+            transform: translateY(1500px) rotate(135deg) !important; 
+            transition: 1.5s ease-in !important; 
+            pointer-events: none;
+        }
+
+        /* Behållare för Captcha-stegen */
+        .captcha-container { background: white; border: 1px solid #ccc; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+        .captcha-header { background: #4a90e2; color: white; padding: 20px; }
+        .captcha-header b { display: block; font-size: 1.1rem; margin-top: 5px; }
 
         /* Steg 1: Text-Captcha */
         #text-captcha-box { padding: 30px; text-align: center; }
@@ -60,7 +68,7 @@
 
     <header>Ölientering.fun</header>
 
-    <div id="start-container" onclick="showStep1()">
+    <div id="start-container" onclick="handleStartClick()">
         <div class="checkbox"></div>
         <span style="font-size: 1.2rem; color: #555; font-weight: 500;">Är du nykter?</span>
         <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width:32px; margin-left:auto;">
@@ -103,7 +111,7 @@
                 Antal år sedan Åbo Akademi grundades + <br>
                 Antalet ben på en DaTe-teknolog + <br>
                 Antalet bokstäver i namnet på kemisternas ämnesförening... <br><br>
-                <i>Ledtråd: Svaret är koden du söker (800).</i>
+                <i>Ledtråd: Svaret är koden ni söker (800).</i>
             </div>
             <div class="input-group">
                 <input type="number" id="final-input" placeholder="Svar...">
@@ -118,11 +126,24 @@
     </div>
 
     <script>
-        // --- NAVIGATION ---
-        function showStep1() {
-            document.getElementById('start-container').classList.add('hidden');
-            document.getElementById('step-1').classList.remove('hidden');
-            drawComplexCaptcha();
+        // --- STEG 0: ANIMATION ---
+        let clickCount = 0;
+        let rotation = 0;
+
+        function handleStartClick() {
+            clickCount++;
+            rotation += (clickCount * 14);
+            const box = document.getElementById('start-container');
+            box.style.transform = `rotate(${rotation}deg)`;
+            
+            if (clickCount >= 6) {
+                box.classList.add('fall-off');
+                setTimeout(() => {
+                    box.classList.add('hidden');
+                    document.getElementById('step-1').classList.remove('hidden');
+                    drawComplexCaptcha();
+                }, 1100);
+            }
         }
 
         // --- STEG 1: TEXT CAPTCHA ---
@@ -170,7 +191,7 @@
             }
         }
 
-        // --- STEG 2: MATH GRID (RENARE OPERATIONER) ---
+        // --- STEG 2: MATH GRID ---
         const problems = [
             { label: "2⁻¹", val: 0.5 },
             { label: "sin(90°)", val: 1.0 },
@@ -250,7 +271,7 @@
             }
         }
 
-        // --- STEG 3: FINAL BOSS ---
+        // --- STEG 3: ÅBO GÅTAN ---
         function verifyFinalBoss() {
             const val = document.getElementById('final-input').value;
             if(val == "800") {
