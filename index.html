@@ -9,18 +9,18 @@
             font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background: #f4f4f4; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; margin: 0; overflow: hidden;
+            min-height: 100vh; margin: 0; overflow-x: hidden;
         }
         header { font-size: 3.5rem; font-weight: 300; margin-bottom: 50px; letter-spacing: -2px; color: #1a1a1a; }
 
-        /* Steg 0: Startknapp med animation */
+        /* Steg 0: Startknappen som snurrar och faller */
         #start-container {
             background: white; border: 1px solid #d3d3d3; border-radius: 3px;
             width: 320px; padding: 20px; display: flex; align-items: center;
             gap: 15px; cursor: pointer; user-select: none;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform: rotate(0deg); /* Explicit startpunkt för animationen */
+            transform: rotate(0deg);
         }
         .checkbox { width: 28px; height: 28px; border: 2px solid #c1c1c1; border-radius: 2px; }
         
@@ -30,7 +30,7 @@
             pointer-events: none;
         }
 
-        /* Behållare för Captcha-stegen */
+        /* Behållare för stegen */
         .captcha-container { background: white; border: 1px solid #ccc; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
         .captcha-header { background: #4a90e2; color: white; padding: 20px; }
         .captcha-header b { display: block; font-size: 1.1rem; margin-top: 5px; }
@@ -127,19 +127,20 @@
     </div>
 
     <script>
-        // --- STEG 0: LOGIK FÖR SNURRANDE RUTA ---
+        // --- STEG 0: SNURR-LOGIK ---
         let clickCount = 0;
         let rotation = 0;
 
         function handleStartClick() {
             clickCount++;
-            // Ökar rotationen kraftigt vid varje klick
-            rotation += (clickCount * 18);
+            // Vi ökar rotationen vid varje klick
+            rotation += (clickCount * 14);
             const box = document.getElementById('start-container');
-            box.style.transform = `rotate(${rotation}deg)`;
+            
+            // Tvingar webbläsaren att uppdatera transform
+            box.style.transform = "rotate(" + rotation + "deg)";
             
             if (clickCount >= 6) {
-                // Vid sjätte klicket "faller" den av skärmen
                 box.classList.add('fall-off');
                 setTimeout(() => {
                     box.classList.add('hidden');
@@ -189,12 +190,12 @@
                 document.getElementById('step-2').classList.remove('hidden');
                 setupMathGrid();
             } else {
-                alert("Fel tecken! Försök igen.");
+                alert("Fel! Försök igen.");
                 drawComplexCaptcha();
             }
         }
 
-        // --- STEG 2: MATH GRID ---
+        // --- STEG 2: MATH GRID (RENARE MATTE) ---
         const problems = [
             { label: "2⁻¹", val: 0.5 },
             { label: "sin(90°)", val: 1.0 },
@@ -263,7 +264,7 @@
         }
 
         function checkMathSolution() {
-            if (selectedOrder.length !== 9) return alert("Välj alla 9 rutor!");
+            if (selectedOrder.length !== 9) return alert("Välj alla rutor!");
             const isCorrect = selectedOrder.every((p, i) => i === 0 || selectedOrder[i-1].val < p.val);
             if (isCorrect) {
                 document.getElementById('step-2').classList.add('hidden');
@@ -281,7 +282,7 @@
                 document.getElementById('step-3').classList.add('hidden');
                 document.getElementById('success-screen').classList.remove('hidden');
             } else {
-                alert("Fel! Tänk på koden ni söker...");
+                alert("Fel! Tänk på koden...");
             }
         }
     </script>
