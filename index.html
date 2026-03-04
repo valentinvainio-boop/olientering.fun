@@ -9,9 +9,9 @@
             font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background: #f4f4f4; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; margin: 0; overflow-x: hidden;
+            min-height: 100vh; margin: 0; overflow: hidden;
         }
-        header { font-size: 3.5rem; font-weight: 300; margin-bottom: 30px; letter-spacing: -2px; color: #1a1a1a; }
+        header { font-size: 3.5rem; font-weight: 300; margin-bottom: 50px; letter-spacing: -2px; color: #1a1a1a; }
 
         /* Steg 0: Startknapp med animation */
         #start-container {
@@ -20,6 +20,7 @@
             gap: 15px; cursor: pointer; user-select: none;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: rotate(0deg); /* Explicit startpunkt för animationen */
         }
         .checkbox { width: 28px; height: 28px; border: 2px solid #c1c1c1; border-radius: 2px; }
         
@@ -103,7 +104,7 @@
     <div id="step-3" class="captcha-container hidden">
         <div class="captcha-header">
             <span>Verifiering steg 3/3</span>
-            <b>Lös sista gåtan för gåtoordet</b>
+            <b>Lös sista gåtan för koden</b>
         </div>
         <div id="abo-box">
             <div class="riddle-text">
@@ -122,21 +123,23 @@
 
     <div id="success-screen" class="hidden">
         <h1>800</h1>
-        <p style="font-size: 1.8rem; color: #2ecc71; font-weight: bold;">Gåtoordet är funnet!</p>
+        <p style="font-size: 1.8rem; color: #2ecc71; font-weight: bold;">Koden är funnen!</p>
     </div>
 
     <script>
-        // --- STEG 0: ANIMATION ---
+        // --- STEG 0: LOGIK FÖR SNURRANDE RUTA ---
         let clickCount = 0;
         let rotation = 0;
 
         function handleStartClick() {
             clickCount++;
-            rotation += (clickCount * 14);
+            // Ökar rotationen kraftigt vid varje klick
+            rotation += (clickCount * 18);
             const box = document.getElementById('start-container');
             box.style.transform = `rotate(${rotation}deg)`;
             
             if (clickCount >= 6) {
+                // Vid sjätte klicket "faller" den av skärmen
                 box.classList.add('fall-off');
                 setTimeout(() => {
                     box.classList.add('hidden');
