@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ölientering.fun</title>
     <style>
-        /* Hindrar markering av text */
+        /* Hindrar markering av text för att stoppa AI-fusk */
         body { 
             -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
             font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
@@ -46,7 +46,9 @@
         .hidden { display: none !important; }
     </style>
 </head>
-<body oncontextmenu="return false;"> <header>Ölientering.fun</header>
+<body oncontextmenu="return false;">
+
+    <header>Ölientering.fun</header>
 
     <div id="start-container" onclick="handleStartClick()">
         <div class="checkbox"></div>
@@ -96,20 +98,20 @@
         <div class="captcha-header"><span>Steg 5/5</span><b>Slutgiltig uträkning</b></div>
         <div class="puzzle-content">
             <div id="riddle-5" class="riddle-card"></div>
-            <input type="number" id="final-input" placeholder="Resultat">
+            <div style="position: relative; text-align: center;">
+                <input type="number" id="final-input" placeholder="" maxlength="3">
+                <span style="font-size: 2rem; letter-spacing: 15px; font-weight: bold; color: #4a90e2; display: block; margin-top: -10px;">_ _ _</span>
+            </div>
             <button class="btn" style="margin-top:25px; width:100%;" onclick="checkStep5()">LÅS UPP KOD</button>
         </div>
     </div>
 
     <script>
-        // Blockerar Ctrl+C
-        window.addEventListener('keydown', e => {
-            if (e.ctrlKey && (e.key === 'c' || e.key === 'u')) e.preventDefault();
-        });
+        // Blockerar Ctrl+C och Ctrl+U
+        window.addEventListener('keydown', e => { if (e.ctrlKey && (e.key === 'c' || e.key === 'u')) e.preventDefault(); });
 
-        // "Krypterad" text för att försvåra för AI/Sidkälla
         const r3 = "Sällskapet på Duetto beställde 3 stora öl och 2 shots. En öl kostar 8€. Notan landade på totalt 44€. Vad kostar en shot?";
-        const r4 = "1. Ta antalet bokstäver i det fullständiga namnet på MK. 2. Multiplicera med antalet bokstäver i det fullständiga namnet på Kemisternas ämnesförening. 3. Subtrahera resultatet av (SF:s grundningsår dividerat med 25).";
+        const r4 = "1. Ta antalet bokstäver i det fullständiga namnet på MK (rf och mellanslag räknas ej). 2. Multiplicera med antalet bokstäver i det fullständiga namnet på Kemisternas ämnesförening (rf och mellanslag räknas ej). 3. Subtrahera resultatet av (SF:s grundningsår dividerat med 25).";
         const r5 = "Ta resultatet från Steg 4 + året då Åbo Akademi grundades - (Priset för 126.2 shots på Duetto).";
 
         document.getElementById('riddle-3').innerText = r3;
@@ -211,7 +213,6 @@
             if(document.getElementById('final-input').value == "800") {
                 document.querySelector('#step-5 .btn').innerText = "BEKRÄFTAT";
                 document.querySelector('#step-5 .btn').style.background = "#27ae60";
-                document.querySelector('#step-5 .btn').disabled = true;
             }
         }
     </script>
