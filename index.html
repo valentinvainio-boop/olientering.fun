@@ -8,259 +8,226 @@
         body { 
             font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background: #f4f4f4; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            min-height: 100vh; 
-            margin: 0; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            min-height: 100vh; margin: 0; 
         }
-        header { 
-            font-size: 3.5rem; 
-            font-weight: 300; 
-            margin-bottom: 50px; 
-            letter-spacing: -2px; 
-            color: #1a1a1a;
-        }
+        header { font-size: 3.5rem; font-weight: 300; margin-bottom: 30px; letter-spacing: -2px; color: #1a1a1a; }
 
-        /* Start-rutan (Captcha style) */
-        #start-container {
-            background: white; 
-            border: 1px solid #d3d3d3; 
-            border-radius: 3px;
-            width: 320px; 
-            padding: 20px; 
-            display: flex; 
-            align-items: center;
-            gap: 15px; 
-            cursor: pointer; 
-            user-select: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-        }
-        #start-container:active { transform: scale(0.98); }
-        .checkbox { width: 28px; height: 28px; border: 2px solid #c1c1c1; border-radius: 2px; }
+        .captcha-container { background: white; border: 1px solid #ccc; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+        .captcha-header { background: #4a90e2; color: white; padding: 20px; }
+        .captcha-header b { display: block; font-size: 1.1rem; margin-top: 5px; }
 
-        /* Captcha Box för spelet */
-        .captcha-container {
-            background: white;
-            border: 1px solid #ccc;
-            width: 450px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        }
+        /* Steg 1: Text-Captcha */
+        #text-captcha-box { padding: 20px; text-align: center; }
+        #captcha-canvas { background: #eee; border: 1px solid #ddd; margin-bottom: 15px; }
+        .input-group { display: flex; gap: 10px; justify-content: center; }
+        input[type="text"] { padding: 10px; border: 1px solid #ccc; border-radius: 4px; width: 150px; font-size: 1rem; }
 
-        .captcha-header {
-            background: #4a90e2;
-            color: white;
-            padding: 20px;
-        }
-        .captcha-header span { font-size: 14px; opacity: 0.9; }
-        .captcha-header b { display: block; font-size: 1.2rem; margin-top: 4px; line-height: 1.2; }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2px;
-            padding: 2px;
-            background: #ccc;
-        }
-
-        .math-tile {
-            background: white;
-            aspect-ratio: 1/1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
+        /* Steg 2: Math Grid */
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; background: #ccc; }
+        .math-tile { background: white; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
         
-        .math-tile.selected {
-            outline: 5px solid #4a90e2;
-            outline-offset: -5px;
-            z-index: 2;
+        /* Siffer-badge istället för checkmark */
+        .order-badge {
+            position: absolute; top: 8px; left: 8px; width: 24px; height: 24px;
+            background: #4a90e2; color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; z-index: 3;
         }
+        .math-tile.selected { outline: 5px solid #4a90e2; outline-offset: -5px; z-index: 2; }
 
-        .check-mark {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            width: 22px;
-            height: 22px;
-            background: #4a90e2;
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .selected .check-mark { display: flex; }
-
-        .footer-bar {
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-top: 1px solid #eee;
-        }
-
-        .verify-btn {
-            background: #4a90e2;
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            font-weight: bold;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
+        .footer-bar { padding: 15px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #eee; }
+        .verify-btn { background: #4a90e2; color: white; border: none; padding: 12px 28px; font-weight: bold; border-radius: 4px; cursor: pointer; }
 
         .hidden { display: none !important; }
         #success-screen { text-align: center; }
-        #success-screen h1 { font-size: 7rem; margin: 0; color: #000; }
+        #success-screen h1 { font-size: 7rem; margin: 0; }
     </style>
 </head>
 <body>
 
     <header>Ölientering.fun</header>
 
-    <div id="start-container" onclick="showGame()">
-        <div class="checkbox"></div>
-        <span style="font-size: 1.2rem; color: #555; font-weight: 500;">Är du nykter?</span>
-        <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width:32px; margin-left:auto;" alt="reCAPTCHA">
+    <div id="step-1" class="captcha-container">
+        <div class="captcha-header">
+            <span>Verifiering steg 1</span>
+            <b>Skriv tecknen du ser i rutan</b>
+        </div>
+        <div id="text-captcha-box">
+            <canvas id="captcha-canvas" width="200" height="80"></canvas>
+            <div class="input-group">
+                <input type="text" id="captcha-input" placeholder="Tecken..." autocomplete="off">
+                <button class="verify-btn" onclick="verifyTextCaptcha()">NÄSTA</button>
+            </div>
+        </div>
     </div>
 
-    <div id="main-game" class="captcha-container hidden">
+    <div id="step-2" class="captcha-container hidden">
         <div class="captcha-header">
-            <span>Välj alla rutor med matematiska värden i ordning från</span>
-            <b>MINSTA TILL STÖRSTA VÄRDE</b>
+            <span>Verifiering steg 2: Är du nykter?</span>
+            <b>Välj rutorna i ordning: MINSTA till STÖRSTA</b>
         </div>
-        
         <div class="grid" id="grid"></div>
-
         <div class="footer-bar">
-            <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width:30px; opacity: 0.6;" alt="reCAPTCHA">
-            <button class="verify-btn" onclick="checkSolution()">VERIFIERA</button>
+            <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width:30px; opacity: 0.6;">
+            <button class="verify-btn" onclick="checkMathSolution()">VERIFIERA</button>
         </div>
     </div>
 
     <div id="success-screen" class="hidden">
         <h1>800</h1>
-        <p style="font-size: 1.8rem; color: #2ecc71; font-weight: bold; margin-top: -10px;">Du är inte full! Bra jobbat.</p>
+        <p style="font-size: 1.8rem; color: #2ecc71; font-weight: bold;">Nykterhet bekräftad!</p>
     </div>
 
     <script>
+        // --- TEXT CAPTCHA LOGIK ---
+        const captchaChars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        let generatedText = "";
+
+        function drawTextCaptcha() {
+            const canvas = document.getElementById('captcha-canvas');
+            const ctx = canvas.getContext('2d');
+            generatedText = "";
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = "italic bold 30px Arial";
+            ctx.textBaseline = "middle";
+            
+            for(let i=0; i<5; i++) {
+                let char = captchaChars.charAt(Math.floor(Math.random() * captchaChars.length));
+                generatedText += char;
+                ctx.save();
+                ctx.translate(30 + i*35, 40);
+                ctx.rotate((Math.random() - 0.5) * 0.4);
+                ctx.fillText(char, 0, 0);
+                ctx.restore();
+            }
+            // Störningslinjer
+            for(let i=0; i<4; i++) {
+                ctx.strokeStyle = "#999";
+                ctx.beginPath();
+                ctx.moveTo(Math.random()*200, Math.random()*80);
+                ctx.lineTo(Math.random()*200, Math.random()*80);
+                ctx.stroke();
+            }
+        }
+
+        function verifyTextCaptcha() {
+            const input = document.getElementById('captcha-input').value.toUpperCase();
+            if(input === generatedText) {
+                document.getElementById('step-1').classList.add('hidden');
+                document.getElementById('step-2').classList.remove('hidden');
+                setupMathGrid();
+            } else {
+                alert("Fel tecken! Försök igen.");
+                drawTextCaptcha();
+                document.getElementById('captcha-input').value = "";
+            }
+        }
+
+        // --- MATH GRID LOGIK ---
         const problems = [
             { label: "5/8", val: 0.625 },
-            { label: "log2(19)", val: 4.24 },
-            { label: "√16", val: 4.0 },
             { label: "8π / 14", val: 1.79 },
-            { label: "5!", val: 120.0 },
             { label: "e", val: 2.718 },
+            { label: "√16", val: 4.0 },
+            { label: "log₂(19)", val: 4.24 },
+            { label: "∫₁⁵ x dx", val: 12.0 },
+            { label: "Σᵢ₌₅⁷ i", val: 18.0 },
             { label: "e³", val: 20.08 },
-            { label: "∫ x dx [1-5]", val: 12.0 },
-            { label: "Σ i (i=5-7)", val: 18.0 }
+            { label: "5!", val: 120.0 }
         ];
 
         let selectedOrder = [];
 
-        function showGame() {
-            document.getElementById('start-container').classList.add('hidden');
-            document.getElementById('main-game').classList.remove('hidden');
-            setupGrid();
-        }
-
-        function drawToCanvas(text) {
+        function drawMathCanvas(text) {
             const canvas = document.createElement('canvas');
-            canvas.width = 150;
-            canvas.height = 150;
+            canvas.width = 150; canvas.height = 150;
             const ctx = canvas.getContext('2d');
-            
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 0, 150, 150);
-            
+            ctx.fillStyle = "white"; ctx.fillRect(0, 0, 150, 150);
             ctx.fillStyle = "#222";
-            ctx.font = "20px 'Segoe UI', Arial, sans-serif";
+            ctx.font = "bold 22px 'Times New Roman', serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             
+            // Hantera rader för snyggare layout
             const lines = text.split(' ');
             lines.forEach((line, i) => {
-                ctx.fillText(line, 75, 75 + (i * 26) - (lines.length * 13));
+                ctx.fillText(line, 75, 75 + (i * 28) - (lines.length * 14));
             });
-
-            // Brus för att stoppa AI-copy
-            ctx.strokeStyle = "rgba(0,0,0,0.08)";
-            for(let i=0; i<6; i++) {
-                ctx.beginPath();
-                ctx.moveTo(Math.random()*150, Math.random()*150);
-                ctx.lineTo(Math.random()*150, Math.random()*150);
-                ctx.stroke();
-            }
-
             return canvas.toDataURL();
         }
 
-        function setupGrid() {
+        function setupMathGrid() {
             const gridEl = document.getElementById('grid');
             gridEl.innerHTML = '';
             selectedOrder = [];
-            
             const shuffled = [...problems].sort(() => Math.random() - 0.5);
 
             shuffled.forEach(prob => {
                 const tile = document.createElement('div');
                 tile.className = 'math-tile';
-                
                 const img = document.createElement('img');
-                img.src = drawToCanvas(prob.label);
+                img.src = drawMathCanvas(prob.label);
                 img.style.width = "100%";
                 tile.appendChild(img);
-
-                const check = document.createElement('div');
-                check.className = 'check-mark';
-                check.innerHTML = '✓';
-                tile.appendChild(check);
 
                 tile.onclick = () => {
                     if (selectedOrder.includes(prob)) {
                         selectedOrder = selectedOrder.filter(p => p !== prob);
                         tile.classList.remove('selected');
+                        refreshBadges();
                     } else {
                         selectedOrder.push(prob);
                         tile.classList.add('selected');
+                        const badge = document.createElement('div');
+                        badge.className = 'order-badge';
+                        tile.appendChild(badge);
+                        refreshBadges();
                     }
                 };
-
                 gridEl.appendChild(tile);
             });
         }
 
-        function checkSolution() {
+        function refreshBadges() {
+            const tiles = document.querySelectorAll('.math-tile');
+            tiles.forEach(tile => {
+                const badge = tile.querySelector('.order-badge');
+                if (badge) badge.remove();
+                tile.classList.remove('selected');
+            });
+
+            selectedOrder.forEach((prob, index) => {
+                const allTiles = document.querySelectorAll('.math-tile');
+                allTiles.forEach(tile => {
+                    if(tile.querySelector('img').src === drawMathCanvas(prob.label)) {
+                        tile.classList.add('selected');
+                        const badge = document.createElement('div');
+                        badge.className = 'order-badge';
+                        badge.innerText = index + 1;
+                        tile.appendChild(badge);
+                    }
+                });
+            });
+        }
+
+        function checkMathSolution() {
             if (selectedOrder.length !== 9) {
-                alert("Du måste markera rutorna i rätt ordning (minsta först)!");
+                alert("Välj alla 9 rutor i ordning!");
                 return;
             }
-
-            let correct = true;
-            for (let i = 0; i < selectedOrder.length - 1; i++) {
-                if (selectedOrder[i].val > selectedOrder[i+1].val) {
-                    correct = false;
-                    break;
-                }
-            }
+            let correct = selectedOrder.every((p, i) => i === 0 || selectedOrder[i-1].val <= p.val);
 
             if (correct) {
-                document.getElementById('main-game').classList.add('hidden');
+                document.getElementById('step-2').classList.add('hidden');
                 document.getElementById('success-screen').classList.remove('hidden');
             } else {
-                alert("Matematiken ljuger inte. Du är definitivt för full. Försök igen!");
-                setupGrid(); // Blandar om brädet vid fel
+                alert("Fel ordning! Försök igen.");
+                setupMathGrid();
             }
         }
+
+        drawTextCaptcha();
     </script>
 </body>
 </html>
