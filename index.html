@@ -103,7 +103,7 @@
                 Antal år sedan Åbo Akademi grundades + <br>
                 Antalet ben på en DaTe-teknolog + <br>
                 Antalet bokstäver i namnet på kemisternas ämnesförening... <br><br>
-                <i>Ledtråd: Svaret är ett jämnt hundratal.</i>
+                <i>Ledtråd: Svaret är koden du söker (800).</i>
             </div>
             <div class="input-group">
                 <input type="number" id="final-input" placeholder="Svar...">
@@ -118,14 +118,14 @@
     </div>
 
     <script>
-        // NAVIGATION
+        // --- NAVIGATION ---
         function showStep1() {
             document.getElementById('start-container').classList.add('hidden');
             document.getElementById('step-1').classList.remove('hidden');
             drawComplexCaptcha();
         }
 
-        // STEG 1 LOGIK (TEXT)
+        // --- STEG 1: TEXT CAPTCHA ---
         let generatedText = "";
         function drawComplexCaptcha() {
             const canvas = document.getElementById('captcha-canvas');
@@ -165,12 +165,12 @@
                 document.getElementById('step-2').classList.remove('hidden');
                 setupMathGrid();
             } else {
-                alert("Fel! Försök igen.");
+                alert("Fel tecken! Försök igen.");
                 drawComplexCaptcha();
             }
         }
 
-        // STEG 2 LOGIK (MATH)
+        // --- STEG 2: MATH GRID (RENARE OPERATIONER) ---
         const problems = [
             { label: "2⁻¹", val: 0.5 },
             { label: "sin(90°)", val: 1.0 },
@@ -239,7 +239,7 @@
         }
 
         function checkMathSolution() {
-            if (selectedOrder.length !== 9) return alert("Välj alla rutor!");
+            if (selectedOrder.length !== 9) return alert("Välj alla 9 rutor!");
             const isCorrect = selectedOrder.every((p, i) => i === 0 || selectedOrder[i-1].val < p.val);
             if (isCorrect) {
                 document.getElementById('step-2').classList.add('hidden');
@@ -250,14 +250,14 @@
             }
         }
 
-        // STEG 3 LOGIK (ÅBO)
+        // --- STEG 3: FINAL BOSS ---
         function verifyFinalBoss() {
             const val = document.getElementById('final-input').value;
             if(val == "800") {
                 document.getElementById('step-3').classList.add('hidden');
                 document.getElementById('success-screen').classList.remove('hidden');
             } else {
-                alert("Fel! Tänk på Åbo... svaret är gåtoordet.");
+                alert("Fel! Tänk på koden ni söker...");
             }
         }
     </script>
