@@ -3,54 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ölientering.fun - Duetto Edition</title>
+    <title>Ölientering.fun</title>
     <style>
-        /* --- ALLMÄN STYLING & KOPPIERINGS-STOPP --- */
+        /* Skydd mot AI-fusk och markering */
         body { 
             -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
             font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background: #f4f4f4; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
-            min-height: 100vh; overflow-x: hidden; padding-bottom: 120px; /* Plats för glaset */
+            min-height: 100vh; overflow-x: hidden;
         }
         
-        /* Den permanenta headern högst upp på alla sidor */
+        /* Fast header på alla sidor */
         #permanent-header {
-            position: fixed; top: 10px; left: 0; width: 100%; text-align: center;
-            font-size: 2rem; font-weight: 300; letter-spacing: -1px; color: #1a1a1a; z-index: 1000;
+            position: fixed; top: 15px; left: 0; width: 100%; text-align: center;
+            font-size: 2.5rem; font-weight: 300; letter-spacing: -1.5px; color: #1a1a1a; z-index: 1000;
         }
 
-        /* --- ANIMERAT ÖLGLAS-ELEMENT --- */
-        #beer-anim-container {
-            position: fixed; bottom: 20px; left: 50%; width: 60px; height: 90px;
-            transform: translateX(-50%) rotate(0deg); transition: transform 0.1s ease-out; z-index: 1000;
-            pointer-events: none; /* Klick går igenom glaset */
-        }
-        /* Glasets yttre skal */
-        .glass {
-            width: 100%; height: 100%; background: rgba(255, 255, 255, 0.3);
-            border: 3px solid #333; border-bottom-width: 6px; border-radius: 5px 5px 15px 15px;
-            position: relative; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        /* Vätskan (Ölen) */
-        .beer-foam {
-            position: absolute; bottom: 0; left: -25%; width: 150%; height: 75%;
-            background: #f1c40f; border-top: 8px solid white; /* Skummet */
-            border-radius: 50% 50% 0 0; transform-origin: center bottom;
-            transition: transform 0.05s linear; z-index: 1;
-        }
-        /* Bubblor */
-        .bubble {
-            position: absolute; background: rgba(255, 255, 255, 0.6); border-radius: 50%;
-            bottom: 5px; animation: bubble-rise 2s infinite ease-in; z-index: 2;
-        }
-        @keyframes bubble-rise {
-            0% { transform: translateY(0) scale(0.5); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateY(-60px) scale(1.2); opacity: 0; }
-        }
-
-        /* --- CAPTCHA BOXAR STYLING --- */
-        .captcha-box { background: white; border: 1px solid #ccc; width: 480px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); margin-top: 80px; margin-bottom: 20px; }
+        /* Captcha Boxes */
+        .captcha-box { background: white; border: 1px solid #ccc; width: 480px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); margin-top: 100px; margin-bottom: 20px; }
         .captcha-header { background: #4a90e2; color: white; padding: 20px; }
         .captcha-header b { display: block; font-size: 1.1rem; margin-top: 5px; }
 
@@ -64,38 +34,33 @@
         }
         .selected { outline: 5px solid #4a90e2; outline-offset: -5px; z-index: 2; }
 
-        /* Gåto-innehåll */
+        /* Innehåll */
         .puzzle-content { padding: 30px; text-align: center; }
         .riddle-card { background: #f8f9fa; border-left: 5px solid #4a90e2; padding: 15px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.4; text-align: left; }
         
         input { padding: 12px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; font-size: 1.1rem; text-align: center; }
         .footer { padding: 15px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #eee; }
-        .btn { background: #4a90e2; color: white; border: none; padding: 12px 25px; font-weight: bold; cursor: pointer; border-radius: 4px; }
+        .btn { background: #4a90e2; color: white; border: none; padding: 12px 28px; font-weight: bold; cursor: pointer; border-radius: 4px; }
 
-        /* Steg 0: Snurr-knappen */
+        .final-lines { font-size: 2rem; letter-spacing: 15px; font-weight: bold; color: #4a90e2; display: block; margin-top: -10px; }
+        
+        /* Steg 0: Knappen */
         #start-container {
             background: white; border: 1px solid #d3d3d3; border-radius: 3px;
             width: 320px; padding: 20px; display: flex; align-items: center;
             gap: 15px; cursor: pointer; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            user-select: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transform: rotate(0deg); margin-top: 150px;
+            user-select: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transform: rotate(0deg); margin-top: 180px;
         }
         .checkbox { width: 28px; height: 28px; border: 2px solid #c1c1c1; border-radius: 2px; }
         .fall-off { transform: translateY(1500px) rotate(135deg) !important; transition: 1.5s ease-in !important; pointer-events: none; }
 
         .hidden { display: none !important; }
-        #thanks-screen h2 { color: #27ae60; }
-        .ans-highlight { color: #d9534f; font-weight: bold; font-size: 2rem; margin: 15px 0; border: 2px dashed #ccc; padding: 10px; }
+        .ans-highlight { color: #4a90e2; font-weight: bold; font-size: 2.2rem; margin: 15px 0; border: 2px dashed #ccc; padding: 15px; background: #f9f9f9; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
     <div id="permanent-header">Ölientering.fun</div>
-    
-    <div id="beer-anim-container">
-        <div class="glass">
-            <div class="beer-foam" id="beer-liquid"></div>
-            </div>
-    </div>
 
     <div id="start-container" onclick="handleStartClick()">
         <div class="checkbox"></div>
@@ -113,10 +78,9 @@
     </div>
 
     <div id="step-2" class="captcha-box hidden">
-        <div class="captcha-header"><span>Steg 2/5</span><b>Välj värden: MINSTA till STÖRSTA</b></div>
-        <div class="grid" id="grid"></div>
+        <div class="captcha-header"><span>Steg 2/5</span><b>Minsta till största värde</b></div>
+        <div id="grid-container" class="grid"></div>
         <div class="footer">
-            <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width:30px; opacity:0.5;">
             <button class="btn" onclick="checkStep2()">VERIFIERA</button>
         </div>
     </div>
@@ -129,7 +93,7 @@
             <div class="footer" style="padding: 15px 0 0 0; border: none; text-align: left;">
                 <span style="font-size: 0.85rem; color: #d9534f; font-weight: bold;">⚠️ REKOMMENDATION: Skriv upp dina svar, de behövs för att lösa slutkoden!</span>
             </div>
-            <button class="btn" style="margin-top:15px; width:100%;" onclick="checkStep3()">SKICKA</button>
+            <button class="btn" style="margin-top:15px; width:100%;" onclick="checkStep3()">FORTSÄTT</button>
         </div>
     </div>
 
@@ -146,70 +110,42 @@
         <div class="captcha-header"><span>Steg 5/5</span><b>Slutgiltig uträkning</b></div>
         <div class="puzzle-content">
             <div id="riddle-5" class="riddle-card"></div>
+            <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">Ange den 3-siffriga slutkoden nedan:</p>
             <div style="position: relative;">
-                <input type="number" id="final-input" placeholder="" maxlength="3" style="letter-spacing: 15px; font-weight: bold;">
+                <input type="number" id="final-input" placeholder="" style="letter-spacing: 15px; font-weight: bold;">
                 <span class="final-lines">_ _ _</span>
             </div>
-            <button class="btn" style="margin-top:25px; width:100%;" onclick="checkStep5()">FORTSÄTT</button>
+            <button class="btn" style="margin-top:25px; width:100%;" onclick="checkStep5()">SKICKA SVAR</button>
         </div>
     </div>
 
     <div id="thanks-screen" class="captcha-box hidden">
         <div class="captcha-header"><b>Verifiering Slutförd</b></div>
         <div class="puzzle-content">
-            <h2>Tack för att du spelade!</h2>
-            <p>Ditt inskickade slutresultat:</p>
+            <h2>Bra jobbat!</h2>
+            <p>Snyggt klurat. Din inskickade siffra är:</p>
             <div class="ans-highlight" id="user-final-ans"></div>
-            <p style="margin-top: 20px; font-size: 0.9rem; color: #555;">Om talet ovan är korrekt har du bevisat din nykterhet (eller din matematiska briljans under press).</p>
-            <button class="btn" style="margin-top: 20px;" onclick="location.reload()">BÖRJA OM</button>
+            <p style="margin-top: 20px; font-size: 0.95rem; line-height: 1.5; color: #333;">
+                Webbsidan checkar inte om detta är korrekt, men vi hoppas ni är bra på matte! 
+                Siffran ovan är ett av orden till den stora gåtan.
+            </p>
+            <button class="btn" style="margin-top: 25px;" onclick="location.reload()">BÖRJA OM</button>
         </div>
     </div>
 
     <script>
-        // Blockerar Ctrl+C, Ctrl+U
+        // Skydd mot kopiering
         window.addEventListener('keydown', e => { if (e.ctrlKey && (e.key === 'c' || e.key === 'u')) e.preventDefault(); });
 
-        // --- GÅTO-TEXTER (Inmatade via JS för att dölja i sidkälla) ---
-        const r3 = "Sällskapet på Duetto beställde 3 stora öl och 2 shots vid fontänen. En öl kostar 8€. Notan landade på totalt 44€. Vad kostar en shot på Duetto?";
-        const r4 = "1. Ta antalet bokstäver i det fullständiga namnet på MK (exklusive rf, dylikt och mellanslag). 2. Multiplicera med antalet bokstäver i namnet på Kemisternas ämnesförening (exklusive rf, dylikt och mellanslag). 3. Subtrahera resultatet av (SF:s grundningsår dividerat med 25).";
-        const r5 = "Ta resultatet från Campus-logiken + året då Åbo Akademi grundades - (Priset för 126.2 shots på Duetto).";
+        const r3 = "Sällskapet på Duetto beställde 3 stora öl och 2 shots. En öl kostar 8€. Notan landade på totalt 44€. Vad kostar en shot?";
+        const r4 = "1. Ta antalet bokstäver i det fullständiga namnet på MK (rf, dylikt och mellanslag räknas ej). 2. Multiplicera med antalet bokstäver i det fullständiga namnet på Kemisternas ämnesförening (rf, dylikt och mellanslag räknas ej). 3. Subtrahera resultatet av (SF:s grundningsår dividerat med 25).";
+        const r5 = "Ta resultatet från Steg 4 + året då Åbo Akademi grundades - (Priset för 126.2 shots på Duetto).";
 
         document.getElementById('riddle-3').innerText = r3;
         document.getElementById('riddle-4').innerText = r4;
         document.getElementById('riddle-5').innerText = r5;
 
-        // --- ANIMATION LOGIK (Följer Musen och Skvalpar) ---
-        const glassContainer = document.getElementById('beer-anim-container');
-        const beerLiquid = document.getElementById('beer-liquid');
-        
-        // Skapa bubblor
-        for (let i = 0; i < 8; i++) {
-            const b = document.createElement('div');
-            b.className = 'bubble';
-            b.style.left = Math.random() * 80 + 10 + '%';
-            b.style.width = b.style.height = Math.random() * 5 + 3 + 'px';
-            b.style.animationDelay = Math.random() * 2 + 's';
-            glassContainer.querySelector('.glass').appendChild(b);
-        }
-
-        let lastX = 0;
-        document.addEventListener('mousemove', (e) => {
-            // Placering
-            const xVal = e.clientX;
-            glassContainer.style.left = xVal + 'px';
-
-            // Rotation och Skvalp-beräkning
-            const deltaX = xVal - lastX;
-            const tilt = Math.max(-15, Math.min(15, deltaX * 0.8)); // Luta glaset
-            const slosh = tilt * -1; // Vätskan går åt motsatt håll
-
-            glassContainer.style.transform = `translateX(-50%) rotate(${tilt}deg)`;
-            beerLiquid.style.transform = `translateX(-50%) rotate(${slosh}deg)`;
-            
-            lastX = xVal;
-        });
-
-        // --- STEG 0: SNURR-KNAPP ---
+        // Logik
         let clicks = 0; let rot = 0;
         function handleStartClick() {
             clicks++; rot += (clicks * 14);
@@ -225,7 +161,6 @@
             }
         }
 
-        // --- STEG 1: TEXT CAPTCHA ---
         let code = "";
         function drawText() {
             const canvas = document.getElementById('text-canvas');
@@ -238,6 +173,7 @@
                 ctx.fillText(c, 0, 0); ctx.restore();
             }
         }
+
         function checkStep1() {
             if(document.getElementById('text-input').value.toUpperCase() === code) {
                 document.getElementById('step-1').classList.add('hidden');
@@ -246,21 +182,20 @@
             } else { alert("Fel!"); drawText(); }
         }
 
-        // --- STEG 2: MATH GRID (Rensad) ---
         const probs = [
             {t:"2⁻¹", v:0.5}, {t:"sin(90°)", v:1}, {t:"e", v:2.71},
             {t:"15% av 20", v:3}, {t:"√16", v:4}, {t:"log₂(32)", v:5},
             {t:"3³", v:27}, {t:"|-42|", v:42}, {t:"5!", v:120}
         ];
         let userSet = [];
+
         function initGrid() {
-            const g = document.getElementById('grid'); g.innerHTML = ""; userSet = [];
+            const g = document.getElementById('grid-container'); g.innerHTML = ""; userSet = [];
             [...probs].sort(()=>Math.random()-0.5).forEach(p => {
                 const d = document.createElement('div');
                 d.className = 'math-tile'; d.dataset.label = p.t;
                 const cvs = document.createElement('canvas'); cvs.width=140; cvs.height=140;
                 const ctx = cvs.getContext('2d');
-                // Snyggare matte-rendering
                 if (p.t === "3³") {
                     ctx.font = "bold 24px Arial"; ctx.textAlign = "center";
                     ctx.fillText("3", 65, 80); ctx.font = "bold 16px Arial"; ctx.fillText("3", 82, 65);
@@ -288,6 +223,7 @@
                 }; g.appendChild(d);
             });
         }
+
         function checkStep2() {
             if(userSet.length === 9 && userSet.every((p, i) => i === 0 || userSet[i-1].v < p.v)) {
                 document.getElementById('step-2').classList.add('hidden');
@@ -295,20 +231,20 @@
             } else { alert("Fel!"); initGrid(); }
         }
 
-        // --- STEG 3, 4, 5 & SLUT LOGIK ---
-        // Svar: Shot=10, Campus=144, Final=800
         function checkStep3() {
             if(document.getElementById('shot-input').value == "10") {
                 document.getElementById('step-3').classList.add('hidden');
                 document.getElementById('step-4').classList.remove('hidden');
             } else { alert("Fel!"); }
         }
+
         function checkStep4() {
             if(document.getElementById('org-input').value == "144") {
                 document.getElementById('step-4').classList.add('hidden');
                 document.getElementById('step-5').classList.remove('hidden');
             } else { alert("Fel!"); }
         }
+
         function checkStep5() {
             const ans = document.getElementById('final-input').value;
             document.getElementById('user-final-ans').innerText = ans;
