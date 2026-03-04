@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ölientering.fun</title>
     <style>
+        /* Hindrar markering av text */
         body { 
+            -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
             font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background: #f4f4f4; display: flex; flex-direction: column; align-items: center; justify-content: center; 
             min-height: 100vh; margin: 0; overflow-x: hidden;
         }
         header { font-size: 3.5rem; font-weight: 300; margin-bottom: 50px; letter-spacing: -2px; color: #1a1a1a; }
 
-        /* Steg 0: Snurr-knappen */
         #start-container {
             background: white; border: 1px solid #d3d3d3; border-radius: 3px;
             width: 320px; padding: 20px; display: flex; align-items: center;
@@ -38,9 +39,6 @@
         .puzzle-content { padding: 30px; }
         .riddle-card { background: #f8f9fa; border-left: 5px solid #4a90e2; padding: 15px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.4; text-align: left; }
         
-        .final-input-container { position: relative; text-align: center; margin-top: 20px; }
-        .final-lines { font-size: 2rem; letter-spacing: 15px; font-weight: bold; color: #4a90e2; margin-top: -10px; display: block; }
-        
         input { padding: 12px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; font-size: 1.1rem; text-align: center; }
         .footer { padding: 15px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #eee; }
         .btn { background: #4a90e2; color: white; border: none; padding: 12px 28px; font-weight: bold; cursor: pointer; border-radius: 4px; }
@@ -48,9 +46,7 @@
         .hidden { display: none !important; }
     </style>
 </head>
-<body>
-
-    <header>Ölientering.fun</header>
+<body oncontextmenu="return false;"> <header>Ölientering.fun</header>
 
     <div id="start-container" onclick="handleStartClick()">
         <div class="checkbox"></div>
@@ -69,9 +65,8 @@
 
     <div id="step-2" class="captcha-box hidden">
         <div class="captcha-header"><span>Steg 2/5</span><b>Minsta till största värde</b></div>
-        <div class="grid" id="grid"></div>
+        <div id="grid-container" class="grid"></div>
         <div class="footer">
-            <span style="font-size: 0.85rem; color: #d9534f; font-weight: bold;">⚠️ Skriv upp svaren på gåtorna, de behövs i finalen!</span>
             <button class="btn" onclick="checkStep2()">VERIFIERA</button>
         </div>
     </div>
@@ -79,12 +74,11 @@
     <div id="step-3" class="captcha-box hidden">
         <div class="captcha-header"><span>Steg 3/5</span><b>Notan på Duetto</b></div>
         <div class="puzzle-content">
-            <div class="riddle-card">
-                Sällskapet på <b>Duetto</b> beställde 3 stora öl och 2 shots.<br>
-                En öl kostar <b>8€</b>. Notan landade på totalt <b>44€</b>.<br><br>
-                Vad kostar <u>en</u> shot?
-            </div>
+            <div id="riddle-3" class="riddle-card"></div>
             <input type="number" id="shot-input" placeholder="Pris i €">
+            <div class="footer" style="padding: 15px 0 0 0; border: none;">
+                <span style="font-size: 0.85rem; color: #d9534f; font-weight: bold;">⚠️ REKOMMENDATION: Skriv upp dina svar, de behövs för att lösa slutkoden!</span>
+            </div>
             <button class="btn" style="margin-top:15px; width:100%;" onclick="checkStep3()">FORTSÄTT</button>
         </div>
     </div>
@@ -92,11 +86,7 @@
     <div id="step-4" class="captcha-box hidden">
         <div class="captcha-header"><span>Steg 4/5</span><b>Campus-logik: Hierarkin</b></div>
         <div class="puzzle-content">
-            <div class="riddle-card">
-                1. Ta antalet bokstäver i det fullständiga namnet på <b>MK</b>.<br>
-                2. Multiplicera med antalet bokstäver i det fullständiga namnet på <b>Kemisternas</b> ämnesförening.<br>
-                3. Subtrahera resultatet av (<b>SF:s</b> grundningsår dividerat med 25).
-            </div>
+            <div id="riddle-4" class="riddle-card"></div>
             <input type="number" id="org-input" placeholder="Svar">
             <button class="btn" style="margin-top:15px; width:100%;" onclick="checkStep4()">BEKRÄFTA</button>
         </div>
@@ -105,20 +95,27 @@
     <div id="step-5" class="captcha-box hidden">
         <div class="captcha-header"><span>Steg 5/5</span><b>Slutgiltig uträkning</b></div>
         <div class="puzzle-content">
-            <div class="riddle-card">
-                Ta resultatet från <b>Steg 4</b> + <br>
-                året då <b>Åbo Akademi</b> grundades - <br>
-                (Priset för <b>126.2</b> shots på Duetto).
-            </div>
-            <div class="final-input-container">
-                <input type="number" id="final-input" placeholder="">
-                <span class="final-lines">_ _ _</span>
-            </div>
+            <div id="riddle-5" class="riddle-card"></div>
+            <input type="number" id="final-input" placeholder="Resultat">
             <button class="btn" style="margin-top:25px; width:100%;" onclick="checkStep5()">LÅS UPP KOD</button>
         </div>
     </div>
 
     <script>
+        // Blockerar Ctrl+C
+        window.addEventListener('keydown', e => {
+            if (e.ctrlKey && (e.key === 'c' || e.key === 'u')) e.preventDefault();
+        });
+
+        // "Krypterad" text för att försvåra för AI/Sidkälla
+        const r3 = "Sällskapet på Duetto beställde 3 stora öl och 2 shots. En öl kostar 8€. Notan landade på totalt 44€. Vad kostar en shot?";
+        const r4 = "1. Ta antalet bokstäver i det fullständiga namnet på MK. 2. Multiplicera med antalet bokstäver i det fullständiga namnet på Kemisternas ämnesförening. 3. Subtrahera resultatet av (SF:s grundningsår dividerat med 25).";
+        const r5 = "Ta resultatet från Steg 4 + året då Åbo Akademi grundades - (Priset för 126.2 shots på Duetto).";
+
+        document.getElementById('riddle-3').innerText = r3;
+        document.getElementById('riddle-4').innerText = r4;
+        document.getElementById('riddle-5').innerText = r5;
+
         let clicks = 0; let rot = 0;
         function handleStartClick() {
             clicks++; rot += (clicks * 14);
@@ -152,7 +149,7 @@
                 document.getElementById('step-1').classList.add('hidden');
                 document.getElementById('step-2').classList.remove('hidden');
                 initGrid();
-            } else { alert("Fel kod!"); drawText(); }
+            } else { alert("Fel!"); drawText(); }
         }
 
         const probs = [
@@ -163,7 +160,7 @@
         let userSet = [];
 
         function initGrid() {
-            const g = document.getElementById('grid'); g.innerHTML = ""; userSet = [];
+            const g = document.getElementById('grid-container'); g.innerHTML = ""; userSet = [];
             [...probs].sort(()=>Math.random()-0.5).forEach(p => {
                 const d = document.createElement('div');
                 d.className = 'math-tile'; d.dataset.label = p.t;
@@ -204,8 +201,6 @@
         }
 
         function checkStep4() {
-            // Merkantila Klubben (17) * Kemistklubben (13) - (1925 / 25 = 77)
-            // 221 - 77 = 144
             if(document.getElementById('org-input').value == "144") {
                 document.getElementById('step-4').classList.add('hidden');
                 document.getElementById('step-5').classList.remove('hidden');
@@ -213,10 +208,10 @@
         }
 
         function checkStep5() {
-            // Uträkning: 144 (Step 4) + 1918 (ÅA) - (126.2 * 10) = 800
             if(document.getElementById('final-input').value == "800") {
                 document.querySelector('#step-5 .btn').innerText = "BEKRÄFTAT";
                 document.querySelector('#step-5 .btn').style.background = "#27ae60";
+                document.querySelector('#step-5 .btn').disabled = true;
             }
         }
     </script>
