@@ -3,24 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ölientering.fun - Åbo Edition</title>
+    <title>Ölientering.fun</title>
     <style>
         body { 
             font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: #f4f4f4; 
+            background: #f9f9f9; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             min-height: 100vh; margin: 0; overflow-x: hidden;
         }
         header { font-size: 3.5rem; font-weight: 300; margin-bottom: 50px; letter-spacing: -2px; color: #1a1a1a; }
 
-        /* Steg 0: Startknappen som snurrar och faller */
+        /* "Är du nykter?" - Original Style Animation */
         #start-container {
-            background: white; border: 1px solid #d3d3d3; border-radius: 3px;
-            width: 320px; padding: 20px; display: flex; align-items: center;
-            gap: 15px; cursor: pointer; user-select: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            background: white; 
+            border: 1px solid #d3d3d3; 
+            border-radius: 3px;
+            width: 320px; 
+            padding: 20px; 
+            display: flex; 
+            align-items: center;
+            gap: 15px; 
+            cursor: pointer; 
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform: rotate(0deg);
+            user-select: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         .checkbox { width: 28px; height: 28px; border: 2px solid #c1c1c1; border-radius: 2px; }
         
@@ -30,19 +36,16 @@
             pointer-events: none;
         }
 
-        /* Behållare för stegen */
-        .captcha-container { background: white; border: 1px solid #ccc; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+        /* Captcha Containers */
+        .captcha-box { background: white; border: 1px solid #ccc; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
         .captcha-header { background: #4a90e2; color: white; padding: 20px; }
         .captcha-header b { display: block; font-size: 1.1rem; margin-top: 5px; }
 
-        /* Steg 1: Text-Captcha */
-        #text-captcha-box { padding: 30px; text-align: center; }
-        #captcha-canvas { background: #fff; border: 1px solid #bbb; margin-bottom: 15px; }
-        .input-group { display: flex; gap: 10px; justify-content: center; }
-        input { padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 1.1rem; }
-        #captcha-input { width: 160px; text-transform: uppercase; }
+        /* Step 1: Text */
+        #text-box { padding: 30px; text-align: center; }
+        canvas { border: 1px solid #bbb; margin-bottom: 15px; background: #fff; }
 
-        /* Steg 2: Math Grid */
+        /* Step 2: Math */
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; background: #ccc; }
         .math-tile { background: white; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
         .order-badge {
@@ -53,16 +56,15 @@
         }
         .math-tile.selected { outline: 5px solid #4a90e2; outline-offset: -5px; z-index: 2; }
 
-        /* Steg 3: Åbo-gåtan */
+        /* Step 3: Gåta */
         #abo-box { padding: 30px; text-align: center; }
-        .riddle-text { font-size: 0.95rem; line-height: 1.5; color: #444; margin-bottom: 20px; text-align: left; background: #f9f9f9; padding: 15px; border-left: 4px solid #4a90e2; }
+        .riddle { background: #f0f4f8; padding: 15px; border-left: 5px solid #4a90e2; text-align: left; margin-bottom: 20px; font-size: 0.9rem; }
 
-        .footer-bar { padding: 15px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #eee; }
-        .verify-btn { background: #4a90e2; color: white; border: none; padding: 12px 28px; font-weight: bold; border-radius: 4px; cursor: pointer; }
+        .footer { padding: 15px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #eee; }
+        .btn { background: #4a90e2; color: white; border: none; padding: 12px 25px; font-weight: bold; cursor: pointer; border-radius: 4px; }
 
         .hidden { display: none !important; }
-        #success-screen { text-align: center; }
-        #success-screen h1 { font-size: 8rem; margin: 0; color: #d9534f; font-weight: 900; }
+        #success h1 { font-size: 8rem; color: #e74c3c; margin: 0; font-weight: 900; }
     </style>
 </head>
 <body>
@@ -75,215 +77,228 @@
         <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width:32px; margin-left:auto;">
     </div>
 
-    <div id="step-1" class="captcha-container hidden">
-        <div class="captcha-header">
-            <span>Verifiering steg 1/3</span>
-            <b>Skriv tecknen i rutan</b>
-        </div>
-        <div id="text-captcha-box">
-            <canvas id="captcha-canvas" width="300" height="100"></canvas>
-            <div class="input-group">
-                <input type="text" id="captcha-input" placeholder="Kod..." autocomplete="off">
-                <button class="verify-btn" onclick="verifyTextCaptcha()">NÄSTA</button>
-            </div>
+    <div id="step-1" class="captcha-box hidden">
+        <div class="captcha-header"><span>Steg 1/3</span><b>Skriv av koden</b></div>
+        <div id="text-box">
+            <canvas id="text-canvas" width="300" height="100"></canvas>
+            <input type="text" id="text-input" style="padding:10px; width:150px; text-transform:uppercase;" placeholder="Kod...">
+            <button class="btn" onclick="checkStep1()">NÄSTA</button>
         </div>
     </div>
 
-    <div id="step-2" class="captcha-container hidden">
-        <div class="captcha-header">
-            <span>Verifiering steg 2/3</span>
-            <b>Välj rutorna i ordning: MINSTA till STÖRSTA</b>
-        </div>
+    <div id="step-2" class="captcha-box hidden">
+        <div class="captcha-header"><span>Steg 2/3</span><b>Ordna från MINSTA till STÖRSTA</b></div>
         <div class="grid" id="grid"></div>
-        <div class="footer-bar">
-            <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width:30px; opacity: 0.6;">
-            <button class="verify-btn" onclick="checkMathSolution()">VERIFIERA</button>
+        <div class="footer">
+            <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width:30px; opacity:0.5;">
+            <button class="btn" onclick="checkStep2()">VERIFIERA</button>
         </div>
     </div>
 
-    <div id="step-3" class="captcha-container hidden">
-        <div class="captcha-header">
-            <span>Verifiering steg 3/3</span>
-            <b>Lös sista gåtan för koden</b>
-        </div>
+    <div id="step-3" class="captcha-box hidden">
+        <div class="captcha-header"><span>Steg 3/3</span><b>Lös gåtan för slutsvar</b></div>
         <div id="abo-box">
-            <div class="riddle-text">
-                <b>GÅTAN:</b><br>
+            <div class="riddle">
                 Antal år sedan Åbo Akademi grundades + <br>
                 Antalet ben på en DaTe-teknolog + <br>
-                Antalet bokstäver i namnet på kemisternas ämnesförening... <br><br>
-                <i>Ledtråd: Svaret är koden ni söker (800).</i>
+                Antalet bokstäver i namnet på kemisternas ämnesförening...
             </div>
-            <div class="input-group">
-                <input type="number" id="final-input" placeholder="Svar...">
-                <button class="verify-btn" onclick="verifyFinalBoss()">KLART</button>
-            </div>
+            <input type="number" id="final-input" style="padding:10px; width:100px;" placeholder="Svar...">
+            <button class="btn" onclick="checkStep3()">KLART</button>
         </div>
     </div>
 
-    <div id="success-screen" class="hidden">
+    <div id="success" class="hidden" style="text-align:center;">
         <h1>800</h1>
-        <p style="font-size: 1.8rem; color: #2ecc71; font-weight: bold;">Koden är funnen!</p>
+        <p style="font-size:1.5rem; font-weight:bold; color:#27ae60;">GÅTOORDET BEKRÄFTAT!</p>
     </div>
 
     <script>
-        // --- STEG 0: SNURR-LOGIK ---
-        let clickCount = 0;
-        let rotation = 0;
-
+        // --- STEP 0: ORIGINAL ROTATION ---
+        let clicks = 0;
+        let rot = 0;
         function handleStartClick() {
-            clickCount++;
-            // Vi ökar rotationen vid varje klick
-            rotation += (clickCount * 14);
+            clicks++;
+            rot += (clicks * 14);
             const box = document.getElementById('start-container');
-            
-            // Tvingar webbläsaren att uppdatera transform
-            box.style.transform = "rotate(" + rotation + "deg)";
-            
-            if (clickCount >= 6) {
+            box.style.transform = `rotate(${rot}deg)`;
+            if (clicks >= 6) {
                 box.classList.add('fall-off');
                 setTimeout(() => {
                     box.classList.add('hidden');
                     document.getElementById('step-1').classList.remove('hidden');
-                    drawComplexCaptcha();
+                    drawText();
                 }, 1100);
             }
         }
 
-        // --- STEG 1: TEXT CAPTCHA ---
-        let generatedText = "";
-        function drawComplexCaptcha() {
-            const canvas = document.getElementById('captcha-canvas');
+        // --- STEP 1: TEXT ---
+        let code = "";
+        function drawText() {
+            const canvas = document.getElementById('text-canvas');
             const ctx = canvas.getContext('2d');
             const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-            generatedText = "";
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for(let i=0; i<150; i++) {
-                ctx.fillStyle = `rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.2)`;
-                ctx.fillRect(Math.random()*300, Math.random()*100, 2, 2);
-            }
-            ctx.font = "italic bold 40px Arial";
-            for(let i=0; i<6; i++) {
-                let char = chars.charAt(Math.floor(Math.random() * chars.length));
-                generatedText += char;
+            code = "";
+            ctx.clearRect(0,0,300,100);
+            ctx.font = "italic bold 35px Arial";
+            for(let i=0; i<6; i++){
+                let c = chars[Math.floor(Math.random()*chars.length)];
+                code += c;
                 ctx.save();
-                ctx.translate(45 + i*40, 55);
-                ctx.rotate((Math.random() - 0.5) * 0.9);
-                ctx.fillStyle = "#111";
-                ctx.shadowColor = "rgba(0,0,0,0.6)";
-                ctx.shadowBlur = 5;
-                ctx.fillText(char, 0, 0);
+                ctx.translate(40+i*40, 50);
+                ctx.rotate(Math.random()-0.5);
+                ctx.fillText(c, 0, 0);
                 ctx.restore();
             }
-            for(let i=0; i<15; i++) {
-                ctx.strokeStyle = `rgba(0,0,0,${Math.random() * 0.5 + 0.2})`;
-                ctx.beginPath();
-                ctx.moveTo(Math.random()*300, Math.random()*100);
-                ctx.lineTo(Math.random()*300, Math.random()*100);
-                ctx.stroke();
+            for(let i=0; i<15; i++){
+                ctx.strokeStyle = `rgba(0,0,0,${Math.random()*0.5})`;
+                ctx.beginPath(); ctx.moveTo(Math.random()*300, Math.random()*100);
+                ctx.lineTo(Math.random()*300, Math.random()*100); ctx.stroke();
             }
         }
-
-        function verifyTextCaptcha() {
-            if(document.getElementById('captcha-input').value.toUpperCase() === generatedText) {
+        function checkStep1() {
+            if(document.getElementById('text-input').value.toUpperCase() === code) {
                 document.getElementById('step-1').classList.add('hidden');
                 document.getElementById('step-2').classList.remove('hidden');
-                setupMathGrid();
-            } else {
-                alert("Fel! Försök igen.");
-                drawComplexCaptcha();
-            }
+                initGrid();
+            } else { alert("Fel!"); drawText(); }
         }
 
-        // --- STEG 2: MATH GRID (RENARE MATTE) ---
-        const problems = [
-            { label: "2⁻¹", val: 0.5 },
-            { label: "sin(90°)", val: 1.0 },
-            { label: "e", val: 2.718 },
-            { label: "15% av 20", val: 3.0 },
-            { label: "√16", val: 4.0 },
-            { label: "log₂(32)", val: 5.0 },
-            { label: "3³", val: 27.0 },
-            { label: "|-42|", val: 42.0 },
-            { label: "5!", val: 120.0 }
+        // --- STEP 2: MATH ---
+        const probs = [
+            {t:"2⁻¹", v:0.5}, {t:"sin(90°)", v:1}, {t:"e", v:2.71},
+            {t:"15% av 20", v:3}, {t:"√16", v:4}, {t:"log₂(32)", v:5},
+            {t:"3³", v:27}, {t:"|-42|", v:42}, {t:"5!", v:120}
         ];
+        let userSet = [];
 
-        let selectedOrder = [];
-
-        function drawMathCanvas(text) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 150; canvas.height = 150;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = "white"; ctx.fillRect(0, 0, 150, 150);
-            ctx.fillStyle = "#222";
-            ctx.font = "bold 24px 'Courier New', monospace";
-            ctx.textAlign = "center";
-            ctx.fillText(text, 75, 82);
-            return canvas.toDataURL();
-        }
-
-        function setupMathGrid() {
-            const gridEl = document.getElementById('grid');
-            gridEl.innerHTML = '';
-            selectedOrder = [];
-            const shuffled = [...problems].sort(() => Math.random() - 0.5);
-            shuffled.forEach(prob => {
-                const tile = document.createElement('div');
-                tile.className = 'math-tile';
-                const img = document.createElement('img');
-                img.src = drawMathCanvas(prob.label);
-                img.style.width = "100%";
-                tile.appendChild(img);
-                tile.onclick = () => {
-                    const idx = selectedOrder.indexOf(prob);
-                    if (idx > -1) selectedOrder = selectedOrder.filter(p => p !== prob);
-                    else if (selectedOrder.length < 9) selectedOrder.push(prob);
-                    refreshGridUI();
+        function initGrid() {
+            const g = document.getElementById('grid');
+            g.innerHTML = ""; userSet = [];
+            [...probs].sort(()=>Math.random()-0.5).forEach(p => {
+                const d = document.createElement('div');
+                d.className = 'math-tile';
+                const canvas = document.createElement('canvas');
+                canvas.width = 150; canvas.height = 150;
+                const ctx = canvas.getContext('2d');
+                ctx.font = "bold 22px Courier"; ctx.textAlign="center";
+                ctx.fillText(p.t, 75, 80);
+                d.appendChild(canvas);
+                d.onclick = () => {
+                    if(userSet.includes(p)) userSet = userSet.filter(x=>x!==p);
+                    else if(userSet.length < 9) userSet.push(p);
+                    updateUI();
                 };
-                gridEl.appendChild(tile);
+                g.appendChild(d);
             });
         }
 
-        function refreshGridUI() {
-            const tiles = document.querySelectorAll('.math-tile');
-            tiles.forEach(tile => {
-                const img = tile.querySelector('img');
-                const badge = tile.querySelector('.order-badge');
-                if (badge) badge.remove();
+        function updateUI() {
+            document.querySelectorAll('.math-tile').forEach(tile => {
                 tile.classList.remove('selected');
-                const prob = problems.find(p => drawMathCanvas(p.label) === img.src);
-                const orderIdx = selectedOrder.indexOf(prob);
-                if(orderIdx > -1) {
-                    tile.classList.add('selected');
-                    const b = document.createElement('div');
-                    b.className = 'order-badge';
-                    b.innerText = orderIdx + 1;
-                    tile.appendChild(b);
-                }
+                const badge = tile.querySelector('.order-badge'); if(badge) badge.remove();
+                // Hitta vilket problem som hör till denna tile genom canvas-texten
+                const p = probs.find(x => x.t === tile.querySelector('canvas').getContext('2d').canvas.width && true); // Simplified check
+                // Re-matching based on order index
+            });
+            // För enkelhets skull, matcha via index i DOM
+            userSet.forEach((p, i) => {
+                document.querySelectorAll('.math-tile').forEach(tile => {
+                    const ctx = tile.querySelector('canvas').getContext('2d');
+                    // Workaround för att matcha rätt ruta
+                    if(tile.innerText === "" && !tile.querySelector('.order-badge')) {
+                        // Matchning sker via data eller liknande i riktig kod, här kör vi visuell refresh
+                    }
+                });
+            });
+            // FIX för badges:
+            const allTiles = document.querySelectorAll('.math-tile');
+            allTiles.forEach(t => {
+                t.classList.remove('selected');
+                if(t.querySelector('.order-badge')) t.querySelector('.order-badge').remove();
+            });
+            userSet.forEach((p, i) => {
+                allTiles.forEach(t => {
+                    // Vi ritar om badges baserat på userSet
+                    const canvas = t.querySelector('canvas');
+                    // Vi sparar värdet i t för att hitta det lättare
+                    if(!t.dataset.val) {
+                        const found = probs.find(x => x.t === "placeholder"); // Justering behövs
+                    }
+                });
+            });
+            // Förenklad badge-logik för att det ska funka 100%
+            setupBadges();
+        }
+
+        function setupBadges() {
+            const tiles = document.querySelectorAll('.math-tile');
+            userSet.forEach((p, i) => {
+                tiles.forEach(t => {
+                    const canvas = t.querySelector('canvas');
+                    // Kontrollera texten på canvasen
+                    if (isMatch(t, p.t)) {
+                        t.classList.add('selected');
+                        const b = document.createElement('div');
+                        b.className = 'order-badge';
+                        b.innerText = i + 1;
+                        t.appendChild(b);
+                    }
+                });
+            });
+        }
+        function isMatch(tile, text) {
+            // Enkel matchning för demonstration
+            return true; // Detta behöver kopplas till data-attribut
+        }
+
+        // Återskapa grid-funktionen korrekt för att badges ska fungera:
+        function initGrid() {
+            const g = document.getElementById('grid');
+            g.innerHTML = ""; userSet = [];
+            const shuffled = [...probs].sort(()=>Math.random()-0.5);
+            shuffled.forEach(p => {
+                const d = document.createElement('div');
+                d.className = 'math-tile';
+                d.dataset.label = p.t;
+                const cvs = document.createElement('canvas');
+                cvs.width=140; cvs.height=140;
+                const ctx = cvs.getContext('2d');
+                ctx.font="bold 22px Arial"; ctx.textAlign="center"; ctx.fillText(p.t, 70, 75);
+                d.appendChild(cvs);
+                d.onclick = () => {
+                    const pObj = probs.find(x => x.t === d.dataset.label);
+                    if(userSet.includes(pObj)) userSet = userSet.filter(x=>x!==pObj);
+                    else if(userSet.length < 9) userSet.push(pObj);
+                    
+                    document.querySelectorAll('.math-tile').forEach(t => {
+                        t.classList.remove('selected');
+                        const b = t.querySelector('.order-badge'); if(b) b.remove();
+                    });
+                    userSet.forEach((sel, i) => {
+                        const target = Array.from(document.querySelectorAll('.math-tile')).find(t => t.dataset.label === sel.t);
+                        target.classList.add('selected');
+                        const badge = document.createElement('div');
+                        badge.className = 'order-badge'; badge.innerText = i+1;
+                        target.appendChild(badge);
+                    });
+                };
+                g.appendChild(d);
             });
         }
 
-        function checkMathSolution() {
-            if (selectedOrder.length !== 9) return alert("Välj alla rutor!");
-            const isCorrect = selectedOrder.every((p, i) => i === 0 || selectedOrder[i-1].val < p.val);
-            if (isCorrect) {
-                document.getElementById('step-2').classList.add('hidden');
-                document.getElementById('step-3').classList.remove('hidden');
-            } else {
-                alert("Fel ordning! Försök igen.");
-                setupMathGrid();
-            }
+        function checkStep2() {
+            if(userSet.length !== 9) return alert("Välj alla!");
+            const ok = userSet.every((p, i) => i === 0 || userSet[i-1].v < p.v);
+            if(ok) { document.getElementById('step-2').classList.add('hidden'); document.getElementById('step-3').classList.remove('hidden'); }
+            else { alert("Fel!"); initGrid(); }
         }
 
-        // --- STEG 3: ÅBO GÅTAN ---
-        function verifyFinalBoss() {
-            const val = document.getElementById('final-input').value;
-            if(val == "800") {
+        function checkStep3() {
+            if(document.getElementById('final-input').value == "800") {
                 document.getElementById('step-3').classList.add('hidden');
-                document.getElementById('success-screen').classList.remove('hidden');
-            } else {
-                alert("Fel! Tänk på koden...");
-            }
+                document.getElementById('success').classList.remove('hidden');
+            } else { alert("Fel!"); }
         }
     </script>
 </body>
