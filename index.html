@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ölientering.fun</title>
+    <title>Ölientering.fun - Åbo Edition</title>
     <style>
         body { 
             font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
@@ -17,46 +17,64 @@
         .captcha-header { background: #4a90e2; color: white; padding: 20px; }
         .captcha-header b { display: block; font-size: 1.1rem; margin-top: 5px; }
 
+        /* Steg 0: Startknapp */
+        #start-container {
+            background: white; border: 1px solid #d3d3d3; border-radius: 3px;
+            width: 320px; padding: 20px; display: flex; align-items: center;
+            gap: 15px; cursor: pointer; user-select: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .checkbox { width: 28px; height: 28px; border: 2px solid #c1c1c1; border-radius: 2px; }
+
         /* Steg 1: Text-Captcha */
-        #text-captcha-box { padding: 20px; text-align: center; }
-        #captcha-canvas { background: #eee; border: 1px solid #ddd; margin-bottom: 15px; }
+        #text-captcha-box { padding: 30px; text-align: center; }
+        #captcha-canvas { background: #fff; border: 1px solid #bbb; margin-bottom: 15px; }
         .input-group { display: flex; gap: 10px; justify-content: center; }
-        input[type="text"] { padding: 10px; border: 1px solid #ccc; border-radius: 4px; width: 150px; font-size: 1rem; }
+        input { padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 1.1rem; }
+        #captcha-input { width: 160px; text-transform: uppercase; }
 
         /* Steg 2: Math Grid */
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; background: #ccc; }
         .math-tile { background: white; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
-        
-        /* Siffer-badge istället för checkmark */
         .order-badge {
-            position: absolute; top: 8px; left: 8px; width: 24px; height: 24px;
+            position: absolute; top: 8px; left: 8px; width: 26px; height: 26px;
             background: #4a90e2; color: white; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 14px; font-weight: bold; z-index: 3;
         }
         .math-tile.selected { outline: 5px solid #4a90e2; outline-offset: -5px; z-index: 2; }
 
+        /* Steg 3: Åbo-gåtan */
+        #abo-box { padding: 30px; text-align: center; }
+        .riddle-text { font-size: 0.95rem; line-height: 1.5; color: #444; margin-bottom: 20px; text-align: left; background: #f9f9f9; padding: 15px; border-left: 4px solid #4a90e2; }
+
         .footer-bar { padding: 15px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #eee; }
         .verify-btn { background: #4a90e2; color: white; border: none; padding: 12px 28px; font-weight: bold; border-radius: 4px; cursor: pointer; }
 
         .hidden { display: none !important; }
         #success-screen { text-align: center; }
-        #success-screen h1 { font-size: 7rem; margin: 0; }
+        #success-screen h1 { font-size: 8rem; margin: 0; color: #d9534f; font-weight: 900; }
     </style>
 </head>
 <body>
 
     <header>Ölientering.fun</header>
 
-    <div id="step-1" class="captcha-container">
+    <div id="start-container" onclick="showStep1()">
+        <div class="checkbox"></div>
+        <span style="font-size: 1.2rem; color: #555; font-weight: 500;">Är du nykter?</span>
+        <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width:32px; margin-left:auto;">
+    </div>
+
+    <div id="step-1" class="captcha-container hidden">
         <div class="captcha-header">
-            <span>Verifiering steg 1</span>
-            <b>Skriv tecknen du ser i rutan</b>
+            <span>Verifiering steg 1/3</span>
+            <b>Skriv tecknen i rutan</b>
         </div>
         <div id="text-captcha-box">
-            <canvas id="captcha-canvas" width="200" height="80"></canvas>
+            <canvas id="captcha-canvas" width="300" height="100"></canvas>
             <div class="input-group">
-                <input type="text" id="captcha-input" placeholder="Tecken..." autocomplete="off">
+                <input type="text" id="captcha-input" placeholder="Kod..." autocomplete="off">
                 <button class="verify-btn" onclick="verifyTextCaptcha()">NÄSTA</button>
             </div>
         </div>
@@ -64,7 +82,7 @@
 
     <div id="step-2" class="captcha-container hidden">
         <div class="captcha-header">
-            <span>Verifiering steg 2: Är du nykter?</span>
+            <span>Verifiering steg 2/3</span>
             <b>Välj rutorna i ordning: MINSTA till STÖRSTA</b>
         </div>
         <div class="grid" id="grid"></div>
@@ -74,66 +92,94 @@
         </div>
     </div>
 
+    <div id="step-3" class="captcha-container hidden">
+        <div class="captcha-header">
+            <span>Verifiering steg 3/3</span>
+            <b>Lös sista gåtan för gåtoordet</b>
+        </div>
+        <div id="abo-box">
+            <div class="riddle-text">
+                <b>GÅTAN:</b><br>
+                Antal år sedan Åbo Akademi grundades + <br>
+                Antalet ben på en DaTe-teknolog + <br>
+                Antalet bokstäver i namnet på kemisternas ämnesförening... <br><br>
+                <i>Ledtråd: Svaret är ett jämnt hundratal.</i>
+            </div>
+            <div class="input-group">
+                <input type="number" id="final-input" placeholder="Svar...">
+                <button class="verify-btn" onclick="verifyFinalBoss()">KLART</button>
+            </div>
+        </div>
+    </div>
+
     <div id="success-screen" class="hidden">
         <h1>800</h1>
-        <p style="font-size: 1.8rem; color: #2ecc71; font-weight: bold;">Nykterhet bekräftad!</p>
+        <p style="font-size: 1.8rem; color: #2ecc71; font-weight: bold;">Gåtoordet är funnet!</p>
     </div>
 
     <script>
-        // --- TEXT CAPTCHA LOGIK ---
-        const captchaChars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-        let generatedText = "";
+        // NAVIGATION
+        function showStep1() {
+            document.getElementById('start-container').classList.add('hidden');
+            document.getElementById('step-1').classList.remove('hidden');
+            drawComplexCaptcha();
+        }
 
-        function drawTextCaptcha() {
+        // STEG 1 LOGIK (TEXT)
+        let generatedText = "";
+        function drawComplexCaptcha() {
             const canvas = document.getElementById('captcha-canvas');
             const ctx = canvas.getContext('2d');
+            const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
             generatedText = "";
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.font = "italic bold 30px Arial";
-            ctx.textBaseline = "middle";
-            
-            for(let i=0; i<5; i++) {
-                let char = captchaChars.charAt(Math.floor(Math.random() * captchaChars.length));
+            for(let i=0; i<150; i++) {
+                ctx.fillStyle = `rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.2)`;
+                ctx.fillRect(Math.random()*300, Math.random()*100, 2, 2);
+            }
+            ctx.font = "italic bold 40px Arial";
+            for(let i=0; i<6; i++) {
+                let char = chars.charAt(Math.floor(Math.random() * chars.length));
                 generatedText += char;
                 ctx.save();
-                ctx.translate(30 + i*35, 40);
-                ctx.rotate((Math.random() - 0.5) * 0.4);
+                ctx.translate(45 + i*40, 55);
+                ctx.rotate((Math.random() - 0.5) * 0.9);
+                ctx.fillStyle = "#111";
+                ctx.shadowColor = "rgba(0,0,0,0.6)";
+                ctx.shadowBlur = 5;
                 ctx.fillText(char, 0, 0);
                 ctx.restore();
             }
-            // Störningslinjer
-            for(let i=0; i<4; i++) {
-                ctx.strokeStyle = "#999";
+            for(let i=0; i<15; i++) {
+                ctx.strokeStyle = `rgba(0,0,0,${Math.random() * 0.5 + 0.2})`;
                 ctx.beginPath();
-                ctx.moveTo(Math.random()*200, Math.random()*80);
-                ctx.lineTo(Math.random()*200, Math.random()*80);
+                ctx.moveTo(Math.random()*300, Math.random()*100);
+                ctx.lineTo(Math.random()*300, Math.random()*100);
                 ctx.stroke();
             }
         }
 
         function verifyTextCaptcha() {
-            const input = document.getElementById('captcha-input').value.toUpperCase();
-            if(input === generatedText) {
+            if(document.getElementById('captcha-input').value.toUpperCase() === generatedText) {
                 document.getElementById('step-1').classList.add('hidden');
                 document.getElementById('step-2').classList.remove('hidden');
                 setupMathGrid();
             } else {
-                alert("Fel tecken! Försök igen.");
-                drawTextCaptcha();
-                document.getElementById('captcha-input').value = "";
+                alert("Fel! Försök igen.");
+                drawComplexCaptcha();
             }
         }
 
-        // --- MATH GRID LOGIK ---
+        // STEG 2 LOGIK (MATH)
         const problems = [
-            { label: "5/8", val: 0.625 },
-            { label: "8π / 14", val: 1.79 },
+            { label: "2⁻¹", val: 0.5 },
+            { label: "sin(90°)", val: 1.0 },
             { label: "e", val: 2.718 },
+            { label: "15% av 20", val: 3.0 },
             { label: "√16", val: 4.0 },
-            { label: "log₂(19)", val: 4.24 },
-            { label: "∫₁⁵ x dx", val: 12.0 },
-            { label: "Σᵢ₌₅⁷ i", val: 18.0 },
-            { label: "e³", val: 20.08 },
+            { label: "log₂(32)", val: 5.0 },
+            { label: "3³", val: 27.0 },
+            { label: "|-42|", val: 42.0 },
             { label: "5!", val: 120.0 }
         ];
 
@@ -145,15 +191,9 @@
             const ctx = canvas.getContext('2d');
             ctx.fillStyle = "white"; ctx.fillRect(0, 0, 150, 150);
             ctx.fillStyle = "#222";
-            ctx.font = "bold 22px 'Times New Roman', serif";
+            ctx.font = "bold 24px 'Courier New', monospace";
             ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            
-            // Hantera rader för snyggare layout
-            const lines = text.split(' ');
-            lines.forEach((line, i) => {
-                ctx.fillText(line, 75, 75 + (i * 28) - (lines.length * 14));
-            });
+            ctx.fillText(text, 75, 82);
             return canvas.toDataURL();
         }
 
@@ -162,7 +202,6 @@
             gridEl.innerHTML = '';
             selectedOrder = [];
             const shuffled = [...problems].sort(() => Math.random() - 0.5);
-
             shuffled.forEach(prob => {
                 const tile = document.createElement('div');
                 tile.className = 'math-tile';
@@ -170,64 +209,57 @@
                 img.src = drawMathCanvas(prob.label);
                 img.style.width = "100%";
                 tile.appendChild(img);
-
                 tile.onclick = () => {
-                    if (selectedOrder.includes(prob)) {
-                        selectedOrder = selectedOrder.filter(p => p !== prob);
-                        tile.classList.remove('selected');
-                        refreshBadges();
-                    } else {
-                        selectedOrder.push(prob);
-                        tile.classList.add('selected');
-                        const badge = document.createElement('div');
-                        badge.className = 'order-badge';
-                        tile.appendChild(badge);
-                        refreshBadges();
-                    }
+                    const idx = selectedOrder.indexOf(prob);
+                    if (idx > -1) selectedOrder = selectedOrder.filter(p => p !== prob);
+                    else if (selectedOrder.length < 9) selectedOrder.push(prob);
+                    refreshGridUI();
                 };
                 gridEl.appendChild(tile);
             });
         }
 
-        function refreshBadges() {
+        function refreshGridUI() {
             const tiles = document.querySelectorAll('.math-tile');
             tiles.forEach(tile => {
+                const img = tile.querySelector('img');
                 const badge = tile.querySelector('.order-badge');
                 if (badge) badge.remove();
                 tile.classList.remove('selected');
-            });
-
-            selectedOrder.forEach((prob, index) => {
-                const allTiles = document.querySelectorAll('.math-tile');
-                allTiles.forEach(tile => {
-                    if(tile.querySelector('img').src === drawMathCanvas(prob.label)) {
-                        tile.classList.add('selected');
-                        const badge = document.createElement('div');
-                        badge.className = 'order-badge';
-                        badge.innerText = index + 1;
-                        tile.appendChild(badge);
-                    }
-                });
+                const prob = problems.find(p => drawMathCanvas(p.label) === img.src);
+                const orderIdx = selectedOrder.indexOf(prob);
+                if(orderIdx > -1) {
+                    tile.classList.add('selected');
+                    const b = document.createElement('div');
+                    b.className = 'order-badge';
+                    b.innerText = orderIdx + 1;
+                    tile.appendChild(b);
+                }
             });
         }
 
         function checkMathSolution() {
-            if (selectedOrder.length !== 9) {
-                alert("Välj alla 9 rutor i ordning!");
-                return;
-            }
-            let correct = selectedOrder.every((p, i) => i === 0 || selectedOrder[i-1].val <= p.val);
-
-            if (correct) {
+            if (selectedOrder.length !== 9) return alert("Välj alla rutor!");
+            const isCorrect = selectedOrder.every((p, i) => i === 0 || selectedOrder[i-1].val < p.val);
+            if (isCorrect) {
                 document.getElementById('step-2').classList.add('hidden');
-                document.getElementById('success-screen').classList.remove('hidden');
+                document.getElementById('step-3').classList.remove('hidden');
             } else {
                 alert("Fel ordning! Försök igen.");
                 setupMathGrid();
             }
         }
 
-        drawTextCaptcha();
+        // STEG 3 LOGIK (ÅBO)
+        function verifyFinalBoss() {
+            const val = document.getElementById('final-input').value;
+            if(val == "800") {
+                document.getElementById('step-3').classList.add('hidden');
+                document.getElementById('success-screen').classList.remove('hidden');
+            } else {
+                alert("Fel! Tänk på Åbo... svaret är gåtoordet.");
+            }
+        }
     </script>
 </body>
 </html>
