@@ -5,26 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ölientering.fun</title>
     <style>
-        /* Skydd mot AI-fusk och markering */
         body { 
             -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
             font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background: #f4f4f4; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
-            min-height: 100vh; overflow-x: hidden;
+            min-height: 100vh; margin: 0; overflow-x: hidden;
         }
         
-        /* Fast header på alla sidor */
         #permanent-header {
             position: fixed; top: 15px; left: 0; width: 100%; text-align: center;
             font-size: 2.5rem; font-weight: 300; letter-spacing: -1.5px; color: #1a1a1a; z-index: 1000;
         }
 
-        /* Captcha Boxes */
         .captcha-box { background: white; border: 1px solid #ccc; width: 480px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); margin-top: 100px; margin-bottom: 20px; }
         .captcha-header { background: #4a90e2; color: white; padding: 20px; }
         .captcha-header b { display: block; font-size: 1.1rem; margin-top: 5px; }
 
-        /* Steg 2: Grid */
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; background: #ccc; }
         .math-tile { background: white; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
         .order-badge {
@@ -34,7 +30,6 @@
         }
         .selected { outline: 5px solid #4a90e2; outline-offset: -5px; z-index: 2; }
 
-        /* Innehåll */
         .puzzle-content { padding: 30px; text-align: center; }
         .riddle-card { background: #f8f9fa; border-left: 5px solid #4a90e2; padding: 15px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.4; text-align: left; }
         
@@ -44,7 +39,6 @@
 
         .final-lines { font-size: 2rem; letter-spacing: 15px; font-weight: bold; color: #4a90e2; display: block; margin-top: -10px; }
         
-        /* Steg 0: Knappen */
         #start-container {
             background: white; border: 1px solid #d3d3d3; border-radius: 3px;
             width: 320px; padding: 20px; display: flex; align-items: center;
@@ -71,8 +65,10 @@
     <div id="step-1" class="captcha-box hidden">
         <div class="captcha-header"><span>Steg 1/5</span><b>Verifiera identitet</b></div>
         <div class="puzzle-content">
-            <canvas id="text-canvas" width="300" height="100" style="border: 1px solid #bbb; margin-bottom: 15px; background: #fff;"></canvas>
-            <input type="text" id="text-input" placeholder="Skriv tecknen här...">
+            <div style="background: #eee; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                <canvas id="text-canvas" width="320" height="100" style="background: #fff; cursor: crosshair;"></canvas>
+            </div>
+            <input type="text" id="text-input" placeholder="Skriv tecknen ovan..." autocomplete="off">
             <button class="btn" style="margin-top:15px; width:100%;" onclick="checkStep1()">NÄSTA</button>
         </div>
     </div>
@@ -134,7 +130,6 @@
     </div>
 
     <script>
-        // Skydd mot kopiering
         window.addEventListener('keydown', e => { if (e.ctrlKey && (e.key === 'c' || e.key === 'u')) e.preventDefault(); });
 
         const r3 = "Sällskapet på Duetto beställde 3 stora öl och 2 shots. En öl kostar 8€. Notan landade på totalt 44€. Vad kostar en shot?";
@@ -145,7 +140,6 @@
         document.getElementById('riddle-4').innerText = r4;
         document.getElementById('riddle-5').innerText = r5;
 
-        // Logik
         let clicks = 0; let rot = 0;
         function handleStartClick() {
             clicks++; rot += (clicks * 14);
@@ -161,17 +155,65 @@
             }
         }
 
+        // --- SVÅR TEXT CAPTCHA LOGIK ---
         let code = "";
         function drawText() {
             const canvas = document.getElementById('text-canvas');
             const ctx = canvas.getContext('2d');
             const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-            code = ""; ctx.clearRect(0,0,300,100); ctx.font = "italic bold 35px Arial";
-            for(let i=0; i<6; i++){
-                let c = chars[Math.floor(Math.random()*chars.length)]; code += c;
-                ctx.save(); ctx.translate(40+i*40, 50); ctx.rotate(Math.random()-0.5);
-                ctx.fillText(c, 0, 0); ctx.restore();
+            code = ""; 
+            ctx.clearRect(0,0,320,100); 
+
+            // 1. Bakgrundsstörningar (Prickar/Brus)
+            for (let i = 0; i < 400; i++) {
+                ctx.fillStyle = `rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.3)`;
+                ctx.beginPath();
+                ctx.arc(Math.random()*320, Math.random()*100, Math.random()*2, 0, Math.PI*2);
+                ctx.fill();
             }
+
+            // 2. Störande linjer
+            for (let i = 0; i < 15; i++) {
+                ctx.strokeStyle = `rgba(${Math.random()*100},${Math.random()*100},${Math.random()*100},0.5)`;
+                ctx.lineWidth = Math.random() * 2;
+                ctx.beginPath();
+                ctx.moveTo(Math.random()*320, Math.random()*100);
+                ctx.lineTo(Math.random()*320, Math.random()*100);
+                ctx.stroke();
+            }
+
+            // 3. Generera och rita tecken
+            ctx.textBaseline = "middle";
+            for(let i=0; i<6; i++){
+                let c = chars[Math.floor(Math.random()*chars.length)]; 
+                code += c;
+                
+                let fontSize = Math.floor(Math.random() * 15) + 35;
+                ctx.font = `italic bold ${fontSize}px serif`;
+                ctx.fillStyle = `rgb(${Math.random()*100},${Math.random()*100},${Math.random()*100})`;
+                
+                ctx.save();
+                // Placera bokstäver med lite slumpmässig överlappning
+                ctx.translate(35 + i*45, 50 + (Math.random()-0.5)*20);
+                ctx.rotate((Math.random()-0.5) * 0.6); // Slumpmässig lutning
+                
+                // Lägg till lite skugga för att göra det ännu grötigare
+                ctx.shadowBlur = Math.random() * 5;
+                ctx.shadowColor = "rgba(0,0,0,0.3)";
+                
+                ctx.fillText(c, 0, 0);
+                ctx.restore();
+            }
+
+            // 4. En sista vågig linje över allt
+            ctx.strokeStyle = "rgba(0,0,0,0.6)";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 50);
+            for(let x=0; x<320; x+=10) {
+                ctx.lineTo(x, 50 + Math.sin(x/20)*15);
+            }
+            ctx.stroke();
         }
 
         function checkStep1() {
@@ -179,7 +221,11 @@
                 document.getElementById('step-1').classList.add('hidden');
                 document.getElementById('step-2').classList.remove('hidden');
                 initGrid();
-            } else { alert("Fel!"); drawText(); }
+            } else { 
+                alert("Felaktig kod! Prova igen."); 
+                document.getElementById('text-input').value = "";
+                drawText(); 
+            }
         }
 
         const probs = [
