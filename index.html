@@ -46,7 +46,7 @@
         .hidden { display: none !important; }
         
         #thanks-screen { text-align: center; padding: 40px; }
-        .ans-highlight { color: #d9534f; font-weight: bold; font-size: 1.4rem; }
+        .ans-highlight { color: #4a90e2; font-weight: bold; font-size: 1.8rem; margin: 15px 0; border: 2px dashed #ccc; padding: 10px; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -101,10 +101,10 @@
         <div class="captcha-header"><span>Steg 5/5</span><b>Slutgiltig uträkning</b></div>
         <div class="puzzle-content" style="text-align: center;">
             <div id="riddle-5" class="riddle-card"></div>
-            <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">Ange den 4-siffriga slutkoden nedan:</p>
+            <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">Ange den 3-siffriga slutkoden nedan:</p>
             <div style="position: relative;">
                 <input type="number" id="final-input" placeholder="" style="letter-spacing: 15px; font-weight: bold;">
-                <span class="final-lines">_ _ _ _</span>
+                <span class="final-lines">_ _ _</span>
             </div>
             <button class="btn" style="margin-top:25px; width:100%;" onclick="checkStep5()">SKICKA SVAR</button>
         </div>
@@ -113,10 +113,10 @@
     <div id="thanks-screen" class="captcha-box hidden">
         <div class="captcha-header"><b>Verifiering Slutförd</b></div>
         <div class="puzzle-content">
-            <h2>Tack för att du spelade!</h2>
-            <p>Ditt inskickade slutresultat:</p>
+            <h2>Tack för ditt deltagande!</h2>
+            <p>Din inskickade kod har registrerats:</p>
             <div class="ans-highlight" id="user-final-ans"></div>
-            <p style="margin-top: 20px; font-size: 0.9rem; color: #555;">Om talet ovan är korrekt har du bevisat din nykterhet (eller din matematiska briljans under press).</p>
+            <p style="margin-top: 20px; font-size: 0.9rem; color: #555;">Resultatet har sparats. Gå vidare till nästa kontrollpunkt för att se om koden stämmer.</p>
             <button class="btn" style="margin-top: 20px;" onclick="location.reload()">BÖRJA OM</button>
         </div>
     </div>
@@ -125,8 +125,8 @@
         window.addEventListener('keydown', e => { if (e.ctrlKey && (e.key === 'c' || e.key === 'u')) e.preventDefault(); });
 
         const r3 = "Sällskapet på Duetto beställde 3 stora öl och 2 shots. En öl kostar 8€. Notan landade på totalt 44€. Vad kostar en shot?";
-        const r4 = "1. Ta antalet bokstäver i det fullständiga namnet på MK (rf och mellanslag räknas ej). 2. Multiplicera med antalet bokstäver i Kemisternas ämnesförening (rf och mellanslag räknas ej). 3. Subtrahera resultatet av (SF:s grundningsår dividerat med 25).";
-        const r5 = "Ta resultatet från Steg 4 + året då Åbo Akademi grundades + (Priset för 593.8 shots på Duetto).";
+        const r4 = "1. Ta antalet bokstäver i det fullständiga namnet på MK (rf, dylikt och mellanslag räknas ej). 2. Multiplicera med antalet bokstäver i det fullständiga namnet på Kemisternas ämnesförening (rf, dylikt och mellanslag räknas ej). 3. Subtrahera resultatet av (SF:s grundningsår dividerat med 25).";
+        const r5 = "Ta resultatet från Steg 4 + året då Åbo Akademi grundades - (Priset för 126.2 shots på Duetto).";
 
         document.getElementById('riddle-3').innerText = r3;
         document.getElementById('riddle-4').innerText = r4;
@@ -181,7 +181,22 @@
                 const d = document.createElement('div');
                 d.className = 'math-tile'; d.dataset.label = p.t;
                 const cvs = document.createElement('canvas'); cvs.width=140; cvs.height=140;
-                const ctx = cvs.getContext('2d'); ctx.font="bold 22px Arial"; ctx.textAlign="center"; ctx.fillText(p.t, 70, 75);
+                const ctx = cvs.getContext('2d');
+                
+                // Specialhantering för snyggare rendering av potenser och absolutbelopp
+                if (p.t === "3³") {
+                    ctx.font = "bold 24px Arial"; ctx.textAlign = "center";
+                    ctx.fillText("3", 65, 80);
+                    ctx.font = "bold 16px Arial";
+                    ctx.fillText("3", 82, 65);
+                } else if (p.t === "|-42|") {
+                    ctx.font = "bold 24px Arial"; ctx.textAlign = "center";
+                    ctx.fillText("|-42|", 70, 78);
+                } else {
+                    ctx.font = "bold 22px Arial"; ctx.textAlign = "center";
+                    ctx.fillText(p.t, 70, 75);
+                }
+                
                 d.appendChild(cvs);
                 d.onclick = () => {
                     const pObj = probs.find(x => x.t === d.dataset.label);
