@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ölientering.fun</title>
     <style>
-        /* Hindrar markering av text för att stoppa AI-fusk */
         body { 
             -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
             font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
@@ -43,7 +42,11 @@
         .footer { padding: 15px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #eee; }
         .btn { background: #4a90e2; color: white; border: none; padding: 12px 28px; font-weight: bold; cursor: pointer; border-radius: 4px; }
 
+        .final-lines { font-size: 2rem; letter-spacing: 15px; font-weight: bold; color: #4a90e2; display: block; margin-top: -10px; }
         .hidden { display: none !important; }
+        
+        #thanks-screen { text-align: center; padding: 40px; }
+        .ans-highlight { color: #d9534f; font-weight: bold; font-size: 1.4rem; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -96,23 +99,34 @@
 
     <div id="step-5" class="captcha-box hidden">
         <div class="captcha-header"><span>Steg 5/5</span><b>Slutgiltig uträkning</b></div>
-        <div class="puzzle-content">
+        <div class="puzzle-content" style="text-align: center;">
             <div id="riddle-5" class="riddle-card"></div>
-            <div style="position: relative; text-align: center;">
-                <input type="number" id="final-input" placeholder="" maxlength="3">
-                <span style="font-size: 2rem; letter-spacing: 15px; font-weight: bold; color: #4a90e2; display: block; margin-top: -10px;">_ _ _</span>
+            <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">Ange den 4-siffriga slutkoden nedan:</p>
+            <div style="position: relative;">
+                <input type="number" id="final-input" placeholder="" style="letter-spacing: 15px; font-weight: bold;">
+                <span class="final-lines">_ _ _ _</span>
             </div>
-            <button class="btn" style="margin-top:25px; width:100%;" onclick="checkStep5()">LÅS UPP KOD</button>
+            <button class="btn" style="margin-top:25px; width:100%;" onclick="checkStep5()">SKICKA SVAR</button>
+        </div>
+    </div>
+
+    <div id="thanks-screen" class="captcha-box hidden">
+        <div class="captcha-header"><b>Verifiering Slutförd</b></div>
+        <div class="puzzle-content">
+            <h2>Tack för att du spelade!</h2>
+            <p>Ditt inskickade slutresultat:</p>
+            <div class="ans-highlight" id="user-final-ans"></div>
+            <p style="margin-top: 20px; font-size: 0.9rem; color: #555;">Om talet ovan är korrekt har du bevisat din nykterhet (eller din matematiska briljans under press).</p>
+            <button class="btn" style="margin-top: 20px;" onclick="location.reload()">BÖRJA OM</button>
         </div>
     </div>
 
     <script>
-        // Blockerar Ctrl+C och Ctrl+U
         window.addEventListener('keydown', e => { if (e.ctrlKey && (e.key === 'c' || e.key === 'u')) e.preventDefault(); });
 
         const r3 = "Sällskapet på Duetto beställde 3 stora öl och 2 shots. En öl kostar 8€. Notan landade på totalt 44€. Vad kostar en shot?";
-        const r4 = "1. Ta antalet bokstäver i det fullständiga namnet på MK (rf och mellanslag räknas ej). 2. Multiplicera med antalet bokstäver i det fullständiga namnet på Kemisternas ämnesförening (rf och mellanslag räknas ej). 3. Subtrahera resultatet av (SF:s grundningsår dividerat med 25).";
-        const r5 = "Ta resultatet från Steg 4 + året då Åbo Akademi grundades - (Priset för 126.2 shots på Duetto).";
+        const r4 = "1. Ta antalet bokstäver i det fullständiga namnet på MK (rf och mellanslag räknas ej). 2. Multiplicera med antalet bokstäver i Kemisternas ämnesförening (rf och mellanslag räknas ej). 3. Subtrahera resultatet av (SF:s grundningsår dividerat med 25).";
+        const r5 = "Ta resultatet från Steg 4 + året då Åbo Akademi grundades + (Priset för 593.8 shots på Duetto).";
 
         document.getElementById('riddle-3').innerText = r3;
         document.getElementById('riddle-4').innerText = r4;
@@ -210,10 +224,10 @@
         }
 
         function checkStep5() {
-            if(document.getElementById('final-input').value == "800") {
-                document.querySelector('#step-5 .btn').innerText = "BEKRÄFTAT";
-                document.querySelector('#step-5 .btn').style.background = "#27ae60";
-            }
+            const ans = document.getElementById('final-input').value;
+            document.getElementById('user-final-ans').innerText = ans;
+            document.getElementById('step-5').classList.add('hidden');
+            document.getElementById('thanks-screen').classList.remove('hidden');
         }
     </script>
 </body>
