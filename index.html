@@ -22,7 +22,6 @@
         .checkbox { width: 28px; height: 28px; border: 2px solid #c1c1c1; border-radius: 2px; }
         .fall-off { transform: translateY(1500px) rotate(135deg) !important; transition: 1.5s ease-in !important; pointer-events: none; }
 
-        /* Containers */
         .captcha-box { background: white; border: 1px solid #ccc; width: 480px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); margin-bottom: 20px; }
         .captcha-header { background: #4a90e2; color: white; padding: 20px; }
         .captcha-header b { display: block; font-size: 1.1rem; margin-top: 5px; }
@@ -120,7 +119,6 @@
     </div>
 
     <script>
-        // --- STEG 0: SNURR-LOGIK ---
         let clicks = 0; let rot = 0;
         function handleStartClick() {
             clicks++; rot += (clicks * 14);
@@ -136,7 +134,6 @@
             }
         }
 
-        // --- STEG 1: TEXT CAPTCHA ---
         let code = "";
         function drawText() {
             const canvas = document.getElementById('text-canvas');
@@ -155,10 +152,9 @@
                 document.getElementById('step-1').classList.add('hidden');
                 document.getElementById('step-2').classList.remove('hidden');
                 initGrid();
-            } else { alert("Fel!"); drawText(); }
+            } else { alert("Fel kod!"); drawText(); }
         }
 
-        // --- STEG 2: MATH GRID ---
         const probs = [
             {t:"2⁻¹", v:0.5}, {t:"sin(90°)", v:1}, {t:"e", v:2.71},
             {t:"15% av 20", v:3}, {t:"√16", v:4}, {t:"log₂(32)", v:5},
@@ -200,7 +196,6 @@
             } else { alert("Fel!"); initGrid(); }
         }
 
-        // --- STEG 3: DUETTO (Shot = 10) ---
         function checkStep3() {
             if(document.getElementById('shot-input').value == "10") {
                 document.getElementById('step-3').classList.add('hidden');
@@ -208,22 +203,21 @@
             } else { alert("Fel!"); }
         }
 
-        // --- STEG 4: CAMPUS (144) ---
         function checkStep4() {
+            // Merkantila Klubben (17) * Kemistklubben (13) - (1925 / 25 = 77)
+            // 221 - 77 = 144
             if(document.getElementById('org-input').value == "144") {
                 document.getElementById('step-4').classList.add('hidden');
                 document.getElementById('step-5').classList.remove('hidden');
             } else { alert("Fel!"); }
         }
 
-        // --- STEG 5: FINAL (800) ---
         function checkStep5() {
-            const ans = document.getElementById('final-input').value;
-            if(ans == "800") {
+            // Uträkning: 144 (Step 4) + 1918 (ÅA) - (126.2 * 10) = 800
+            if(document.getElementById('final-input').value == "800") {
                 document.querySelector('#step-5 .btn').innerText = "BEKRÄFTAT";
                 document.querySelector('#step-5 .btn').style.background = "#27ae60";
             }
-            // Ingen feedback vid fel
         }
     </script>
 </body>
