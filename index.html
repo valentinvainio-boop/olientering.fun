@@ -2,81 +2,83 @@
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Ölientering.fun</title>
     <style>
-        /* Global fix för att bredder ska beräknas korrekt med padding */
         * { box-sizing: border-box; }
 
         body { 
             -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
             font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: #f4f4f4; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
-            min-height: 100vh; overflow-x: hidden;
+            background: #f4f4f4; margin: 0; 
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; padding: 20px;
         }
         
         #permanent-header {
             position: fixed; top: 15px; left: 0; width: 100%; text-align: center;
-            font-size: 2.5rem; font-weight: 300; letter-spacing: -1.5px; color: #1a1a1a; z-index: 1000;
+            font-size: 2rem; font-weight: 300; letter-spacing: -1px; color: #1a1a1a; z-index: 1000;
+            background: rgba(244, 244, 244, 0.9); padding: 10px 0;
         }
 
-        /* Responsiv box: 95% på mobilen, max 480px på datorn */
+        /* Centrerings-wrapper för att slippa margin-top problem */
+        .main-wrapper {
+            flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 480px; margin-top: 60px;
+        }
+
         .captcha-box { 
             background: white; border: 1px solid #ccc; 
-            width: 95%; max-width: 480px; 
+            width: 100%;
             box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
-            margin-top: 100px; margin-bottom: 20px; 
+            animation: fadeIn 0.3s ease-in-out;
         }
         
-        .captcha-header { background: #4a90e2; color: white; padding: 20px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .captcha-header { background: #4a90e2; color: white; padding: 15px; }
         .captcha-header b { display: block; font-size: 1.1rem; margin-top: 5px; }
 
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; background: #ccc; }
-        .math-tile { background: white; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
-        
-        /* Gör att canvas-bilder i mattenätet skalar ner om det behövs */
-        .math-tile canvas { max-width: 100%; height: auto; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: #ccc; border: 2px solid #ccc; }
+        .math-tile { background: white; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; }
+        .math-tile canvas { width: 100% !important; height: 100% !important; }
 
         .order-badge {
-            position: absolute; top: 8px; left: 8px; width: 26px; height: 26px;
+            position: absolute; top: 5px; left: 5px; width: 22px; height: 22px;
             background: #4a90e2; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 14px; font-weight: bold; z-index: 3;
+            font-size: 12px; font-weight: bold; z-index: 3;
         }
-        .selected { outline: 5px solid #4a90e2; outline-offset: -5px; z-index: 2; }
+        .selected { outline: 4px solid #4a90e2; outline-offset: -4px; z-index: 2; }
 
-        .puzzle-content { padding: 25px; text-align: center; }
+        .puzzle-content { padding: 20px; text-align: center; }
         .riddle-card { background: #f8f9fa; border-left: 5px solid #4a90e2; padding: 15px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.4; text-align: left; }
         
-        /* Gör canvas i steg 1 responsiv */
-        #text-canvas { max-width: 100%; height: auto; background: #fff; cursor: crosshair; }
+        #text-canvas { max-width: 100%; height: auto; background: #fff; border-radius: 4px; }
 
-        input { padding: 12px; border: 1px solid #ccc; border-radius: 4px; width: 100%; font-size: 1.1rem; text-align: center; }
-        .footer { padding: 15px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #eee; }
-        .btn { background: #4a90e2; color: white; border: none; padding: 12px 28px; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 1rem; }
+        input { padding: 12px; border: 1px solid #ccc; border-radius: 4px; width: 100%; font-size: 16px; text-align: center; -webkit-appearance: none; }
+        .footer { padding: 15px; display: flex; align-items: center; justify-content: flex-end; border-top: 1px solid #eee; }
+        .btn { background: #4a90e2; color: white; border: none; padding: 12px 28px; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 1rem; width: 100%; }
 
-        .final-lines { font-size: 2rem; letter-spacing: 15px; font-weight: bold; color: #4a90e2; display: block; margin-top: -10px; }
-        
         #start-container {
             background: white; border: 1px solid #d3d3d3; border-radius: 3px;
-            width: 90%; max-width: 320px; padding: 20px; display: flex; align-items: center;
-            gap: 15px; cursor: pointer; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            user-select: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-top: 180px;
+            width: 100%; max-width: 300px; padding: 15px; display: flex; align-items: center;
+            gap: 12px; cursor: pointer; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            user-select: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            touch-action: manipulation;
         }
-        .checkbox { width: 28px; height: 28px; border: 2px solid #c1c1c1; border-radius: 2px; flex-shrink: 0; }
-        .fall-off { transform: translateY(1500px) rotate(135deg) !important; transition: 1.5s ease-in !important; pointer-events: none; }
+        .checkbox { width: 24px; height: 24px; border: 2px solid #c1c1c1; border-radius: 2px; flex-shrink: 0; }
+        .fall-off { transform: translateY(100vh) rotate(135deg) !important; transition: 1s ease-in !important; pointer-events: none; }
 
         .hidden { display: none !important; }
-        .ans-highlight { color: #4a90e2; font-weight: bold; font-size: 2.2rem; margin: 15px 0; border: 2px dashed #ccc; padding: 15px; background: #f9f9f9; word-break: break-all; }
+        .ans-highlight { color: #4a90e2; font-weight: bold; font-size: 2.2rem; margin: 15px 0; border: 2px dashed #ccc; padding: 15px; background: #f9f9f9; }
 
-        /* --- MOBILANPASSNINGAR --- */
-        @media (max-width: 480px) {
-            #permanent-header { font-size: 1.8rem; top: 10px; }
-            .captcha-box { margin-top: 70px; }
-            .captcha-header { padding: 15px; }
+        .final-input-container { position: relative; width: 100%; max-width: 200px; margin: 0 auto; }
+        #final-input { letter-spacing: 15px; font-weight: bold; background: transparent; border: none; outline: none; position: relative; z-index: 2; }
+        .final-lines { font-size: 2rem; letter-spacing: 15px; font-weight: bold; color: #4a90e2; display: block; margin-top: -35px; position: relative; z-index: 1; }
+
+        @media (max-width: 400px) {
+            #permanent-header { font-size: 1.5rem; }
+            .captcha-header { padding: 12px; }
             .puzzle-content { padding: 15px; }
-            .btn { width: 100%; } /* Knappar tar hela bredden på mobilen */
-            .final-lines { font-size: 1.5rem; letter-spacing: 10px; }
-            input#final-input { letter-spacing: 10px !important; }
         }
     </style>
 </head>
@@ -84,84 +86,80 @@
 
     <div id="permanent-header">Ölientering.fun</div>
 
-    <div id="start-container" onclick="handleStartClick()">
-        <div class="checkbox"></div>
-        <span style="font-size: 1.1rem; color: #555; font-weight: 500;">Är du nykter?</span>
-        <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width:32px; margin-left:auto;">
-    </div>
+    <div class="main-wrapper">
+        <div id="start-container" onclick="handleStartClick()">
+            <div class="checkbox"></div>
+            <span style="font-size: 1rem; color: #555; font-weight: 500;">Är du nykter?</span>
+            <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width:28px; margin-left:auto;">
+        </div>
 
-    <div id="step-1" class="captcha-box hidden">
-        <div class="captcha-header"><span>Steg 1/5</span><b>Verifiera identitet</b></div>
-        <div class="puzzle-content">
-            <div style="background: #eee; padding: 10px; border-radius: 4px; margin-bottom: 15px; display: flex; justify-content: center;">
-                <canvas id="text-canvas" width="320" height="100"></canvas>
+        <div id="step-1" class="captcha-box hidden">
+            <div class="captcha-header"><span>Steg 1/5</span><b>Verifiera identitet</b></div>
+            <div class="puzzle-content">
+                <div style="background: #eee; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                    <canvas id="text-canvas" width="300" height="100"></canvas>
+                </div>
+                <input type="text" id="text-input" placeholder="Skriv tecknen..." autocomplete="off">
+                <button class="btn" style="margin-top:15px;" onclick="checkStep1()">NÄSTA</button>
             </div>
-            <input type="text" id="text-input" placeholder="Skriv tecknen ovan..." autocomplete="off">
-            <button class="btn" style="margin-top:15px;" onclick="checkStep1()">NÄSTA</button>
         </div>
-    </div>
 
-    <div id="step-2" class="captcha-box hidden">
-        <div class="captcha-header"><span>Steg 2/5</span><b>Minsta till största värde</b></div>
-        <div id="grid-container" class="grid"></div>
-        <div class="footer">
-            <button class="btn" onclick="checkStep2()">VERIFIERA</button>
-        </div>
-    </div>
-
-    <div id="step-3" class="captcha-box hidden">
-        <div class="captcha-header"><span>Steg 3/5</span><b>Notan på Duetto</b></div>
-        <div class="puzzle-content">
-            <div id="riddle-3" class="riddle-card"></div>
-            <input type="number" id="shot-input" placeholder="Pris i €">
-            <div style="padding: 15px 0; text-align: left;">
-                <span style="font-size: 0.8rem; color: #d9534f; font-weight: bold;">⚠️ Tips: Skriv upp dina svar!</span>
+        <div id="step-2" class="captcha-box hidden">
+            <div class="captcha-header"><span>Steg 2/5</span><b>Minsta till största värde</b></div>
+            <div id="grid-container" class="grid"></div>
+            <div class="footer">
+                <button class="btn" onclick="checkStep2()">VERIFIERA</button>
             </div>
-            <button class="btn" onclick="checkStep3()">FORTSÄTT</button>
         </div>
-    </div>
 
-    <div id="step-4" class="captcha-box hidden">
-        <div class="captcha-header"><span>Steg 4/5</span><b>Campus-logik: Hierarkin</b></div>
-        <div class="puzzle-content">
-            <div id="riddle-4" class="riddle-card"></div>
-            <input type="number" id="org-input" placeholder="Svar">
-            <button class="btn" style="margin-top:15px;" onclick="checkStep4()">BEKRÄFTA</button>
-        </div>
-    </div>
-
-    <div id="step-5" class="captcha-box hidden">
-        <div class="captcha-header"><span>Steg 5/5</span><b>Slutgiltig uträkning</b></div>
-        <div class="puzzle-content">
-            <div id="riddle-5" class="riddle-card"></div>
-            <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">Ange den 3-siffriga slutkoden:</p>
-            <div style="position: relative; width: 100%; max-width: 200px; margin: 0 auto;">
-                <input type="number" id="final-input" style="letter-spacing: 15px; font-weight: bold; background: transparent; border: none; outline: none;">
-                <span class="final-lines">_ _ _</span>
+        <div id="step-3" class="captcha-box hidden">
+            <div class="captcha-header"><span>Steg 3/5</span><b>Notan på Duetto</b></div>
+            <div class="puzzle-content">
+                <div id="riddle-3" class="riddle-card"></div>
+                <input type="number" id="shot-input" placeholder="Pris i €">
+                <p style="font-size: 0.8rem; color: #d9534f; font-weight: bold; margin-top: 15px; text-align: left;">⚠️ Tips: Skriv upp dina svar!</p>
+                <button class="btn" onclick="checkStep3()">FORTSÄTT</button>
             </div>
-            <button class="btn" style="margin-top:25px;" onclick="checkStep5()">SKICKA SVAR</button>
         </div>
-    </div>
 
-    <div id="thanks-screen" class="captcha-box hidden">
-        <div class="captcha-header"><b>Verifiering Slutförd</b></div>
-        <div class="puzzle-content">
-            <h2>Bra jobbat!</h2>
-            <p>Din inskickade siffra är:</p>
-            <div class="ans-highlight" id="user-final-ans"></div>
-            <p style="font-size: 0.9rem; color: #333;">
-                Siffran ovan är ett av orden till den stora gåtan.
-            </p>
-            <button class="btn" style="margin-top: 25px;" onclick="location.reload()">BÖRJA OM</button>
+        <div id="step-4" class="captcha-box hidden">
+            <div class="captcha-header"><span>Steg 4/5</span><b>Campus-logik</b></div>
+            <div class="puzzle-content">
+                <div id="riddle-4" class="riddle-card"></div>
+                <input type="number" id="org-input" placeholder="Svar">
+                <button class="btn" style="margin-top:15px;" onclick="checkStep4()">BEKRÄFTA</button>
+            </div>
+        </div>
+
+        <div id="step-5" class="captcha-box hidden">
+            <div class="captcha-header"><span>Steg 5/5</span><b>Slutgiltig uträkning</b></div>
+            <div class="puzzle-content">
+                <div id="riddle-5" class="riddle-card"></div>
+                <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">Ange den 3-siffriga slutkoden:</p>
+                <div class="final-input-container">
+                    <input type="number" id="final-input" maxlength="3">
+                    <span class="final-lines">_ _ _</span>
+                </div>
+                <button class="btn" style="margin-top:25px;" onclick="checkStep5()">SKICKA SVAR</button>
+            </div>
+        </div>
+
+        <div id="thanks-screen" class="captcha-box hidden">
+            <div class="captcha-header"><b>Verifiering Slutförd</b></div>
+            <div class="puzzle-content">
+                <h2>Bra jobbat!</h2>
+                <p>Din inskickade siffra är:</p>
+                <div class="ans-highlight" id="user-final-ans"></div>
+                <p style="font-size: 0.9rem; color: #333;">Siffran ovan är ett av orden till den stora gåtan.</p>
+                <button class="btn" style="margin-top: 25px;" onclick="location.reload()">BÖRJA OM</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Förhindra högerklick och visa källa
-        window.addEventListener('keydown', e => { if (e.ctrlKey && (e.key === 'c' || e.key === 'u')) e.preventDefault(); });
-
+        // Riddles
         const r3 = "Sällskapet på Duetto beställde 3 stora öl och 2 shots. En öl kostar 8€. Notan landade på totalt 44€. Vad kostar en shot?";
-        const r4 = "1. Ta antalet bokstäver i det fullständiga namnet på MK (rf, dylikt och mellanslag räknas ej). 2. Multiplicera med antalet bokstäver i det fullständiga namnet på Kemisternas ämnesförening (rf, dylikt och mellanslag räknas ej). 3. Subtrahera resultatet av (SF:s grundningsår dividerat med 25).";
+        const r4 = "1. Ta antalet bokstäver i det fullständiga namnet på MK (rf, dylikt och mellanslag räknas ej).\n2. Multiplicera med antalet bokstäver i namnet på Kemisternas ämnesförening (rf/mellanslag ej med).\n3. Subtrahera resultatet av (SF:s grundningsår dividerat med 25).";
         const r5 = "Ta resultatet från Steg 4 + året då Åbo Akademi grundades - (Priset för 126.2 shots på Duetto).";
 
         document.getElementById('riddle-3').innerText = r3;
@@ -170,7 +168,7 @@
 
         let clicks = 0; let rot = 0;
         function handleStartClick() {
-            clicks++; rot += (clicks * 14);
+            clicks++; rot += (clicks * 20);
             const box = document.getElementById('start-container');
             box.style.transform = `rotate(${rot}deg)`;
             if (clicks >= 6) {
@@ -179,7 +177,7 @@
                     box.classList.add('hidden');
                     document.getElementById('step-1').classList.remove('hidden');
                     drawText();
-                }, 1100);
+                }, 600);
             }
         }
 
@@ -189,25 +187,24 @@
             const ctx = canvas.getContext('2d');
             const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
             code = ""; 
-            ctx.clearRect(0,0,320,100); 
+            ctx.clearRect(0,0,300,100); 
 
-            for (let i = 0; i < 400; i++) {
-                ctx.fillStyle = `rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.3)`;
+            for (let i = 0; i < 150; i++) {
+                ctx.fillStyle = `rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.2)`;
                 ctx.beginPath();
-                ctx.arc(Math.random()*320, Math.random()*100, Math.random()*2, 0, Math.PI*2);
+                ctx.arc(Math.random()*300, Math.random()*100, Math.random()*3, 0, Math.PI*2);
                 ctx.fill();
             }
 
             ctx.textBaseline = "middle";
-            for(let i=0; i<6; i++){
+            for(let i=0; i<5; i++){
                 let c = chars[Math.floor(Math.random()*chars.length)]; 
                 code += c;
-                let fontSize = Math.floor(Math.random() * 15) + 35;
-                ctx.font = `italic bold ${fontSize}px serif`;
-                ctx.fillStyle = `rgb(${Math.random()*100},${Math.random()*100},${Math.random()*100})`;
+                ctx.font = `italic bold ${Math.floor(Math.random()*10)+30}px serif`;
+                ctx.fillStyle = "#333";
                 ctx.save();
-                ctx.translate(35 + i*45, 50 + (Math.random()-0.5)*20);
-                ctx.rotate((Math.random()-0.5) * 0.6);
+                ctx.translate(50 + i*50, 50);
+                ctx.rotate((Math.random()-0.5) * 0.4);
                 ctx.fillText(c, 0, 0);
                 ctx.restore();
             }
@@ -218,11 +215,7 @@
                 document.getElementById('step-1').classList.add('hidden');
                 document.getElementById('step-2').classList.remove('hidden');
                 initGrid();
-            } else { 
-                alert("Felaktig kod!"); 
-                document.getElementById('text-input').value = "";
-                drawText(); 
-            }
+            } else { alert("Felaktig kod!"); drawText(); }
         }
 
         const probs = [
@@ -237,31 +230,32 @@
             [...probs].sort(()=>Math.random()-0.5).forEach(p => {
                 const d = document.createElement('div');
                 d.className = 'math-tile'; d.dataset.label = p.t;
-                const cvs = document.createElement('canvas'); cvs.width=140; cvs.height=140;
+                const cvs = document.createElement('canvas'); cvs.width=100; cvs.height=100;
                 const ctx = cvs.getContext('2d');
-                ctx.font = "bold 22px Arial"; ctx.textAlign = "center"; 
+                ctx.font = "bold 18px Arial"; ctx.textAlign = "center"; 
                 if (p.t === "3³") {
-                    ctx.font = "bold 24px Arial"; ctx.fillText("3", 65, 80); 
-                    ctx.font = "bold 16px Arial"; ctx.fillText("3", 82, 65);
-                } else {
-                    ctx.fillText(p.t, 70, 75);
-                }
+                    ctx.fillText("3", 45, 55); ctx.font = "bold 12px Arial"; ctx.fillText("3", 58, 42);
+                } else { ctx.fillText(p.t, 50, 55); }
                 d.appendChild(cvs);
                 d.onclick = () => {
                     const pObj = probs.find(x => x.t === d.dataset.label);
                     if(userSet.includes(pObj)) userSet = userSet.filter(x=>x!==pObj);
                     else if(userSet.length < 9) userSet.push(pObj);
-                    document.querySelectorAll('.math-tile').forEach(t => {
-                        t.classList.remove('selected');
-                        const b = t.querySelector('.order-badge'); if(b) b.remove();
-                    });
-                    userSet.forEach((sel, i) => {
-                        const target = Array.from(document.querySelectorAll('.math-tile')).find(t => t.dataset.label === sel.t);
-                        target.classList.add('selected');
-                        const b = document.createElement('div'); b.className = 'order-badge'; b.innerText = i+1;
-                        target.appendChild(b);
-                    });
+                    updateGridUI();
                 }; g.appendChild(d);
+            });
+        }
+
+        function updateGridUI() {
+            document.querySelectorAll('.math-tile').forEach(t => {
+                t.classList.remove('selected');
+                const b = t.querySelector('.order-badge'); if(b) b.remove();
+                const idx = userSet.findIndex(x => x.t === t.dataset.label);
+                if(idx !== -1) {
+                    t.classList.add('selected');
+                    const badge = document.createElement('div'); badge.className = 'order-badge'; badge.innerText = idx+1;
+                    t.appendChild(badge);
+                }
             });
         }
 
@@ -288,6 +282,7 @@
 
         function checkStep5() {
             const ans = document.getElementById('final-input').value;
+            if(!ans) return alert("Ange koden!");
             document.getElementById('user-final-ans').innerText = ans;
             document.getElementById('step-5').classList.add('hidden');
             document.getElementById('thanks-screen').classList.remove('hidden');
