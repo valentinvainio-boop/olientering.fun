@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ölientering.fun</title>
     <style>
+        /* Global fix för att bredder ska beräknas korrekt med padding */
+        * { box-sizing: border-box; }
+
         body { 
             -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
             font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background: #f4f4f4; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
-            min-height: 100vh; margin: 0; overflow-x: hidden;
+            min-height: 100vh; overflow-x: hidden;
         }
         
         #permanent-header {
@@ -17,12 +20,23 @@
             font-size: 2.5rem; font-weight: 300; letter-spacing: -1.5px; color: #1a1a1a; z-index: 1000;
         }
 
-        .captcha-box { background: white; border: 1px solid #ccc; width: 480px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); margin-top: 100px; margin-bottom: 20px; }
+        /* Responsiv box: 95% på mobilen, max 480px på datorn */
+        .captcha-box { 
+            background: white; border: 1px solid #ccc; 
+            width: 95%; max-width: 480px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
+            margin-top: 100px; margin-bottom: 20px; 
+        }
+        
         .captcha-header { background: #4a90e2; color: white; padding: 20px; }
         .captcha-header b { display: block; font-size: 1.1rem; margin-top: 5px; }
 
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; background: #ccc; }
         .math-tile { background: white; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+        
+        /* Gör att canvas-bilder i mattenätet skalar ner om det behövs */
+        .math-tile canvas { max-width: 100%; height: auto; }
+
         .order-badge {
             position: absolute; top: 8px; left: 8px; width: 26px; height: 26px;
             background: #4a90e2; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -30,26 +44,40 @@
         }
         .selected { outline: 5px solid #4a90e2; outline-offset: -5px; z-index: 2; }
 
-        .puzzle-content { padding: 30px; text-align: center; }
+        .puzzle-content { padding: 25px; text-align: center; }
         .riddle-card { background: #f8f9fa; border-left: 5px solid #4a90e2; padding: 15px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.4; text-align: left; }
         
-        input { padding: 12px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; font-size: 1.1rem; text-align: center; }
+        /* Gör canvas i steg 1 responsiv */
+        #text-canvas { max-width: 100%; height: auto; background: #fff; cursor: crosshair; }
+
+        input { padding: 12px; border: 1px solid #ccc; border-radius: 4px; width: 100%; font-size: 1.1rem; text-align: center; }
         .footer { padding: 15px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #eee; }
-        .btn { background: #4a90e2; color: white; border: none; padding: 12px 28px; font-weight: bold; cursor: pointer; border-radius: 4px; }
+        .btn { background: #4a90e2; color: white; border: none; padding: 12px 28px; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 1rem; }
 
         .final-lines { font-size: 2rem; letter-spacing: 15px; font-weight: bold; color: #4a90e2; display: block; margin-top: -10px; }
         
         #start-container {
             background: white; border: 1px solid #d3d3d3; border-radius: 3px;
-            width: 320px; padding: 20px; display: flex; align-items: center;
+            width: 90%; max-width: 320px; padding: 20px; display: flex; align-items: center;
             gap: 15px; cursor: pointer; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            user-select: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transform: rotate(0deg); margin-top: 180px;
+            user-select: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-top: 180px;
         }
-        .checkbox { width: 28px; height: 28px; border: 2px solid #c1c1c1; border-radius: 2px; }
+        .checkbox { width: 28px; height: 28px; border: 2px solid #c1c1c1; border-radius: 2px; flex-shrink: 0; }
         .fall-off { transform: translateY(1500px) rotate(135deg) !important; transition: 1.5s ease-in !important; pointer-events: none; }
 
         .hidden { display: none !important; }
-        .ans-highlight { color: #4a90e2; font-weight: bold; font-size: 2.2rem; margin: 15px 0; border: 2px dashed #ccc; padding: 15px; background: #f9f9f9; }
+        .ans-highlight { color: #4a90e2; font-weight: bold; font-size: 2.2rem; margin: 15px 0; border: 2px dashed #ccc; padding: 15px; background: #f9f9f9; word-break: break-all; }
+
+        /* --- MOBILANPASSNINGAR --- */
+        @media (max-width: 480px) {
+            #permanent-header { font-size: 1.8rem; top: 10px; }
+            .captcha-box { margin-top: 70px; }
+            .captcha-header { padding: 15px; }
+            .puzzle-content { padding: 15px; }
+            .btn { width: 100%; } /* Knappar tar hela bredden på mobilen */
+            .final-lines { font-size: 1.5rem; letter-spacing: 10px; }
+            input#final-input { letter-spacing: 10px !important; }
+        }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -58,18 +86,18 @@
 
     <div id="start-container" onclick="handleStartClick()">
         <div class="checkbox"></div>
-        <span style="font-size: 1.2rem; color: #555; font-weight: 500;">Är du nykter?</span>
+        <span style="font-size: 1.1rem; color: #555; font-weight: 500;">Är du nykter?</span>
         <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width:32px; margin-left:auto;">
     </div>
 
     <div id="step-1" class="captcha-box hidden">
         <div class="captcha-header"><span>Steg 1/5</span><b>Verifiera identitet</b></div>
         <div class="puzzle-content">
-            <div style="background: #eee; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
-                <canvas id="text-canvas" width="320" height="100" style="background: #fff; cursor: crosshair;"></canvas>
+            <div style="background: #eee; padding: 10px; border-radius: 4px; margin-bottom: 15px; display: flex; justify-content: center;">
+                <canvas id="text-canvas" width="320" height="100"></canvas>
             </div>
             <input type="text" id="text-input" placeholder="Skriv tecknen ovan..." autocomplete="off">
-            <button class="btn" style="margin-top:15px; width:100%;" onclick="checkStep1()">NÄSTA</button>
+            <button class="btn" style="margin-top:15px;" onclick="checkStep1()">NÄSTA</button>
         </div>
     </div>
 
@@ -86,10 +114,10 @@
         <div class="puzzle-content">
             <div id="riddle-3" class="riddle-card"></div>
             <input type="number" id="shot-input" placeholder="Pris i €">
-            <div class="footer" style="padding: 15px 0 0 0; border: none; text-align: left;">
-                <span style="font-size: 0.85rem; color: #d9534f; font-weight: bold;">⚠️ REKOMMENDATION: Skriv upp dina svar, de behövs för att lösa slutkoden!</span>
+            <div style="padding: 15px 0; text-align: left;">
+                <span style="font-size: 0.8rem; color: #d9534f; font-weight: bold;">⚠️ Tips: Skriv upp dina svar!</span>
             </div>
-            <button class="btn" style="margin-top:15px; width:100%;" onclick="checkStep3()">FORTSÄTT</button>
+            <button class="btn" onclick="checkStep3()">FORTSÄTT</button>
         </div>
     </div>
 
@@ -98,7 +126,7 @@
         <div class="puzzle-content">
             <div id="riddle-4" class="riddle-card"></div>
             <input type="number" id="org-input" placeholder="Svar">
-            <button class="btn" style="margin-top:15px; width:100%;" onclick="checkStep4()">BEKRÄFTA</button>
+            <button class="btn" style="margin-top:15px;" onclick="checkStep4()">BEKRÄFTA</button>
         </div>
     </div>
 
@@ -106,12 +134,12 @@
         <div class="captcha-header"><span>Steg 5/5</span><b>Slutgiltig uträkning</b></div>
         <div class="puzzle-content">
             <div id="riddle-5" class="riddle-card"></div>
-            <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">Ange den 3-siffriga slutkoden nedan:</p>
-            <div style="position: relative;">
-                <input type="number" id="final-input" placeholder="" style="letter-spacing: 15px; font-weight: bold;">
+            <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">Ange den 3-siffriga slutkoden:</p>
+            <div style="position: relative; width: 100%; max-width: 200px; margin: 0 auto;">
+                <input type="number" id="final-input" style="letter-spacing: 15px; font-weight: bold; background: transparent; border: none; outline: none;">
                 <span class="final-lines">_ _ _</span>
             </div>
-            <button class="btn" style="margin-top:25px; width:100%;" onclick="checkStep5()">SKICKA SVAR</button>
+            <button class="btn" style="margin-top:25px;" onclick="checkStep5()">SKICKA SVAR</button>
         </div>
     </div>
 
@@ -119,10 +147,9 @@
         <div class="captcha-header"><b>Verifiering Slutförd</b></div>
         <div class="puzzle-content">
             <h2>Bra jobbat!</h2>
-            <p>Snyggt klurat. Din inskickade siffra är:</p>
+            <p>Din inskickade siffra är:</p>
             <div class="ans-highlight" id="user-final-ans"></div>
-            <p style="margin-top: 20px; font-size: 0.95rem; line-height: 1.5; color: #333;">
-                Webbsidan checkar inte om detta är korrekt, men vi hoppas ni är bra på matte! 
+            <p style="font-size: 0.9rem; color: #333;">
                 Siffran ovan är ett av orden till den stora gåtan.
             </p>
             <button class="btn" style="margin-top: 25px;" onclick="location.reload()">BÖRJA OM</button>
@@ -130,6 +157,7 @@
     </div>
 
     <script>
+        // Förhindra högerklick och visa källa
         window.addEventListener('keydown', e => { if (e.ctrlKey && (e.key === 'c' || e.key === 'u')) e.preventDefault(); });
 
         const r3 = "Sällskapet på Duetto beställde 3 stora öl och 2 shots. En öl kostar 8€. Notan landade på totalt 44€. Vad kostar en shot?";
@@ -155,7 +183,6 @@
             }
         }
 
-        // --- SVÅR TEXT CAPTCHA LOGIK ---
         let code = "";
         function drawText() {
             const canvas = document.getElementById('text-canvas');
@@ -164,7 +191,6 @@
             code = ""; 
             ctx.clearRect(0,0,320,100); 
 
-            // 1. Bakgrundsstörningar (Prickar/Brus)
             for (let i = 0; i < 400; i++) {
                 ctx.fillStyle = `rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.3)`;
                 ctx.beginPath();
@@ -172,48 +198,19 @@
                 ctx.fill();
             }
 
-            // 2. Störande linjer
-            for (let i = 0; i < 15; i++) {
-                ctx.strokeStyle = `rgba(${Math.random()*100},${Math.random()*100},${Math.random()*100},0.5)`;
-                ctx.lineWidth = Math.random() * 2;
-                ctx.beginPath();
-                ctx.moveTo(Math.random()*320, Math.random()*100);
-                ctx.lineTo(Math.random()*320, Math.random()*100);
-                ctx.stroke();
-            }
-
-            // 3. Generera och rita tecken
             ctx.textBaseline = "middle";
             for(let i=0; i<6; i++){
                 let c = chars[Math.floor(Math.random()*chars.length)]; 
                 code += c;
-                
                 let fontSize = Math.floor(Math.random() * 15) + 35;
                 ctx.font = `italic bold ${fontSize}px serif`;
                 ctx.fillStyle = `rgb(${Math.random()*100},${Math.random()*100},${Math.random()*100})`;
-                
                 ctx.save();
-                // Placera bokstäver med lite slumpmässig överlappning
                 ctx.translate(35 + i*45, 50 + (Math.random()-0.5)*20);
-                ctx.rotate((Math.random()-0.5) * 0.6); // Slumpmässig lutning
-                
-                // Lägg till lite skugga för att göra det ännu grötigare
-                ctx.shadowBlur = Math.random() * 5;
-                ctx.shadowColor = "rgba(0,0,0,0.3)";
-                
+                ctx.rotate((Math.random()-0.5) * 0.6);
                 ctx.fillText(c, 0, 0);
                 ctx.restore();
             }
-
-            // 4. En sista vågig linje över allt
-            ctx.strokeStyle = "rgba(0,0,0,0.6)";
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(0, 50);
-            for(let x=0; x<320; x+=10) {
-                ctx.lineTo(x, 50 + Math.sin(x/20)*15);
-            }
-            ctx.stroke();
         }
 
         function checkStep1() {
@@ -222,7 +219,7 @@
                 document.getElementById('step-2').classList.remove('hidden');
                 initGrid();
             } else { 
-                alert("Felaktig kod! Prova igen."); 
+                alert("Felaktig kod!"); 
                 document.getElementById('text-input').value = "";
                 drawText(); 
             }
@@ -242,14 +239,12 @@
                 d.className = 'math-tile'; d.dataset.label = p.t;
                 const cvs = document.createElement('canvas'); cvs.width=140; cvs.height=140;
                 const ctx = cvs.getContext('2d');
+                ctx.font = "bold 22px Arial"; ctx.textAlign = "center"; 
                 if (p.t === "3³") {
-                    ctx.font = "bold 24px Arial"; ctx.textAlign = "center";
-                    ctx.fillText("3", 65, 80); ctx.font = "bold 16px Arial"; ctx.fillText("3", 82, 65);
-                } else if (p.t === "|-42|") {
-                    ctx.font = "bold 24px Arial"; ctx.textAlign = "center";
-                    ctx.fillText("|-42|", 70, 78);
+                    ctx.font = "bold 24px Arial"; ctx.fillText("3", 65, 80); 
+                    ctx.font = "bold 16px Arial"; ctx.fillText("3", 82, 65);
                 } else {
-                    ctx.font = "bold 22px Arial"; ctx.textAlign = "center"; ctx.fillText(p.t, 70, 75);
+                    ctx.fillText(p.t, 70, 75);
                 }
                 d.appendChild(cvs);
                 d.onclick = () => {
@@ -274,7 +269,7 @@
             if(userSet.length === 9 && userSet.every((p, i) => i === 0 || userSet[i-1].v < p.v)) {
                 document.getElementById('step-2').classList.add('hidden');
                 document.getElementById('step-3').classList.remove('hidden');
-            } else { alert("Fel!"); initGrid(); }
+            } else { alert("Fel ordning!"); initGrid(); }
         }
 
         function checkStep3() {
